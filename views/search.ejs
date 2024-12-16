@@ -1,0 +1,23 @@
+<!-- views/search.ejs -->
+<%- include('partials/header') %>
+
+<h2>搜索结果 for "<%= query %>"</h2>
+<div class="row">
+  <% if (recipes.length > 0) { %>
+    <% recipes.forEach(recipe => { %>
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <img src="<%= recipe.photo %>" class="card-img-top" alt="食谱">
+          <div class="card-body">
+            <h5 class="card-title"><a href="/recipes/<%= recipe._id %>"><%= recipe.description %></a></h5>
+            <p class="card-text">喜欢数: <%= recipe.likes %></p>
+          </div>
+        </div>
+      </div>
+    <% }) %>
+  <% } else { %>
+    <p>没有找到相关食谱。</p>
+  <% } %>
+</div>
+
+<%- include('partials/footer') %>

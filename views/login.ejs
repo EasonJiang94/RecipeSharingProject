@@ -1,0 +1,28 @@
+<!-- views/login.ejs -->
+<%- include('partials/header') %>
+
+<h2>登录</h2>
+<form action="/users/login" method="POST">
+  <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+    <div class="alert alert-danger">
+      <ul>
+        <% errors.forEach(error => { %>
+          <li><%= error.msg %></li>
+        <% }) %>
+      </ul>
+    </div>
+  <% } %>
+
+  <div class="form-group">
+    <label for="account">账户</label>
+    <input type="text" class="form-control" id="account" name="account" required>
+  </div>
+  <div class="form-group">
+    <label for="password">密码</label>
+    <input type="password" class="form-control" id="password" name="password" required>
+  </div>
+  <button type="submit" class="btn btn-primary">登录</button>
+  <a href="#" class="btn btn-link">忘记密码？</a>
+</form>
+
+<%- include('partials/footer') %>

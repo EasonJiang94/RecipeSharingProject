@@ -1,0 +1,27 @@
+<!-- views/recipe.ejs -->
+<%- include('partials/header') %>
+
+<div class="card mb-4">
+  <img src="<%= recipe.photo %>" class="card-img-top" alt="食谱图片">
+  <div class="card-body">
+    <h3 class="card-title"><%= recipe.description %></h3>
+    <h5>食材</h5>
+    <ul>
+      <% recipe.ingredient.forEach(item => { %>
+        <li><%= item %></li>
+      <% }) %>
+    </ul>
+    <h5>做法</h5>
+    <p><%= recipe.instruction %></p>
+    <p>喜欢数: <%= recipe.likes %></p>
+    <!-- 你可以添加点赞按钮和评论功能 -->
+  </div>
+</div>
+
+<div class="comments-section">
+  <h4>评论</h4>
+  <!-- 显示评论 -->
+  <% /* 遍历评论并显示 */ %>
+</div>
+
+<%- include('partials/footer') %>

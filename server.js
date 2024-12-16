@@ -2,13 +2,13 @@
  * This is the main Node.js server script for your project
  * Check out the two endpoints this back-end API provides in fastify.get and fastify.post below
  */
-// const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
-// const mongoURI = process.env.MONGODB_URI;
+const mongoURI = process.env.MONGODB_URI;
 
-// mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
-//   .then(() => console.log('MongoDB 連接成功'))
-//   .catch(err => console.error('MongoDB 連接錯誤:', err));
+mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('MongoDB 連接成功'))
+  .catch(err => console.error('MongoDB 連接錯誤:', err));
 
 const path = require("path");
 

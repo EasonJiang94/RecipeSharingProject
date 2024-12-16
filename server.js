@@ -3,7 +3,9 @@
  * Check out the two endpoints this back-end API provides in fastify.get and fastify.post below
  */
 const mongoose = require('mongoose');
-
+const Recipe = require('./models/Recipe');
+const User = require('./models/User');
+const Profile = require('./models/Profile');
 const mongoURI = process.env.MONGODB_URI;
 
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })

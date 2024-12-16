@@ -4,7 +4,11 @@
   "description": "A fully featured recipe sharing web application",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "seed": "node seed.js"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",

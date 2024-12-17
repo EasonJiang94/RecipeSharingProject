@@ -1,4 +1,3 @@
-<!-- views/recipe.ejs -->
 <%- include('partials/header') %>
 
 <div class="card mb-4">
@@ -13,11 +12,28 @@
     </ul>
     <h5>Instructions</h5>
     <p><%= recipe.instruction %></p>
-    <p>Likes: <%= recipe.likes %></p>
-    <!-- You can add like button and comments functionality -->
+
+    <!-- Likes Section -->
+    <p>Likes: <%= likeCount %></p>
+    <% if (user) { %>
+      <% if (userLiked) { %>
+        <!-- 取消点赞按钮 -->
+        <form action="/recipes/<%= recipe._id %>/unlike" method="POST" style="display:inline;">
+          <button type="submit" class="btn btn-danger">👎 Unlike</button>
+        </form>
+      <% } else { %>
+        <!-- 点赞按钮 -->
+        <form action="/recipes/<%= recipe._id %>/like" method="POST" style="display:inline;">
+          <button type="submit" class="btn btn-primary">👍 Like</button>
+        </form>
+      <% } %>
+    <% } else { %>
+      <p><a href="/login">Login</a> to like this recipe.</p>
+    <% } %>
   </div>
 </div>
 
+<!-- Comments Section -->
 <div class="comments-section">
   <h4>Comments</h4>
   <!-- Display comments -->

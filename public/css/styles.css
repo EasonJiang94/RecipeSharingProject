@@ -1,18 +1,19 @@
 /* Color Palette */
 :root {
-  --primary-color: #2867B2;
+  --primary-color: #3367D6; 
   --secondary-color: #6c757d;
   --accent-color: #E53935;
-  --background-light: #F8F9FA;
+  --background-light: #F5F7FA; 
   --background-white: #FFFFFF;
   --text-dark: #333333;
+  --text-light: #565656; 
 }
 
 /* Typography */
 body {
   font-family: 'Montserrat', sans-serif;
   background-color: var(--background-light);
-  color: var(--text-dark);
+  color: var(--text-light);
   line-height: 1.6;
 }
 
@@ -20,113 +21,70 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Playfair Display', serif;
   font-weight: 700;
   color: var(--text-dark);
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem; 
 }
 
 /* Navbar and Search Bar */
 .navbar {
   background-color: var(--primary-color);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); 
+  padding: 1rem 0; }
 
 .navbar-brand,
 .navbar-nav .nav-link {
-  color: var(--background-white);
+  font-size: 1.1rem; 
   font-weight: 600;
 }
 
 .input-group .form-control {
-  border-color: var(--background-light);
-  background-color: var(--background-white);
-}
-
-.input-group .form-control:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 0.2rem rgba(40,103,178,0.25);
+  border-radius: 30px;
+  padding: 0.8rem 1.2rem; 
 }
 
 .input-group-append .btn-primary {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-}
-
-.input-group-append .btn-primary:hover {
-  background-color: #1E4E88;
-  border-color: #1E4E88;
+  border-radius: 30px; 
+  padding: 0.8rem 1.5rem; 
 }
 
 /* Category Navigation */
 .nav-pills {
   background-color: var(--background-white);
   border-radius: 40px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  margin-bottom: 2rem;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); 
+  margin-bottom: 2.5rem; 
 }
 
 .nav-pills .nav-link {
-  color: var(--secondary-color);
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.nav-pills .nav-link:hover,
-.nav-pills .nav-link.active {
-  background-color: var(--primary-color);
-  color: var(--background-white);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  font-size: 1.05rem; 
+  font-weight: 600;
+  padding: 1rem 1.5rem; 
 }
 
 /* Recipe Cards */
 .card {
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 16px; 
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); 
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 20px rgba(0,0,0,0.12);
+  transform: translateY(-7px); 
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.15);
 }
 
 .card-img-top {
-  height: 200px;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.card:hover .card-img-top {
-  transform: scale(1.05);
+  height: 220px; 
 }
 
 .card-body {
-  padding: 1.5rem;
+  padding: 1.8rem;
 }
 
 /* Buttons */
-.btn-primary {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-  transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-  background-color: #1E4E88;
-  border-color: #1E4E88;
-  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-}
-
+.btn-primary,
 .btn-success {
-  background-color: var(--accent-color);
-  border-color: var(--accent-color);
-  transition: all 0.3s ease;
-}
-
-.btn-success:hover {
-  background-color: #C62828;
-  border-color: #C62828;
-  box-shadow: 0 6px 12px rgba(229,57,53,0.15);
+  font-size: 1rem; 
+  padding: 0.8rem 1.5rem; 
+  border-radius: 30px; 
 }
 
 /* Responsive Design */

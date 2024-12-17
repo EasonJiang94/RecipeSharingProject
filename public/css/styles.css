@@ -1,17 +1,13 @@
-/* public/css/styles.css */
 
-/* 自定义导航栏样式 */
 .navbar-brand {
   font-weight: bold;
 }
 
-/* 食谱卡片样式 */
 .card-img-top {
   height: 200px;
   object-fit: cover;
 }
 
-/* 响应式调整 */
 @media (max-width: 768px) {
   .card-img-top {
     height: 150px;

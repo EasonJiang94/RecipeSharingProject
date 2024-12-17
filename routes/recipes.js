@@ -20,6 +20,7 @@ router.get('/add', ensureAuthenticated, (req, res) => {
 
 // Add recipe handling
 router.post('/add', ensureAuthenticated, async (req, res) => {
+  console.log(re)
   const { description, ingredient, instruction, category } = req.body;
   let errors = [];
 
@@ -46,7 +47,7 @@ router.post('/add', ensureAuthenticated, async (req, res) => {
       instruction,
       category,
       photo: req.file ? req.file.buffer.toString('base64') : null,
-      likes: 0 // 初始化点赞数为 0
+      likes: 0 
     });
     
     const savedRecipe = await newRecipe.save();

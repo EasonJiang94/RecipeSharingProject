@@ -124,7 +124,7 @@ router.post('/like/:id', ensureAuthenticated, async (req, res) => {
   }
 });
 
-// View single recipe - must be after /add route
+// View single recipe
 router.get('/:id', async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id);
@@ -152,10 +152,10 @@ router.get('/:id', async (req, res) => {
     const currentCategory = recipe.category || 'all';
 
     res.render('recipe', { 
-      recipe: { ...recipe._doc, likes: likeCount }, // Pass like count to frontend
+      recipe: { ...recipe._doc, likes: likeCount }, 
       creator: recipeUser ? recipeUser.uid : null,
-      currentCategory, // Pass currentCategory to the template
-      hasLiked // Pass hasLiked to the template
+      currentCategory,
+      hasLiked 
     });
   } catch (err) {
     console.error(err);
@@ -164,7 +164,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Unlike recipe handling
 // Unlike recipe handling
 router.post('/unlike/:id', ensureAuthenticated, async (req, res) => {
   try {

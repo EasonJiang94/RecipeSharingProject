@@ -42,9 +42,11 @@
 
       <!-- Like Button -->
       <% if (user) { %>
-        <button id="like-btn" class="btn btn-primary" <%= hasLiked ? 'disabled' : '' %>>
-          <%= hasLiked ? 'Liked' : 'Like' %>
-        </button>
+        <% if (hasLiked) { %>
+          <button id="unlike-btn" class="btn btn-danger">Unlike</button>
+        <% } else { %>
+          <button id="like-btn" class="btn btn-primary">Like</button>
+        <% } %>
       <% } else { %>
         <p><a href="/users/login">Log in</a> to like this recipe.</p>
       <% } %>
@@ -72,9 +74,9 @@
 <script>
   <% if (user) { %>
     <% if (hasLiked) { %>
+      // User has already liked: show "Unlike" functionality
       document.getElementById('unlike-btn').addEventListener('click', async () => {
         try {
-          // 發送取消喜歡的請求
           const response = await fetch('/recipes/unlike/<%= recipe._id %>', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
@@ -83,13 +85,11 @@
           const data = await response.json();
 
           if (data.success) {
-            // 更新喜歡數量
             document.getElementById('like-count').innerText = data.likes;
-            // 更改按鈕為 Like
+            // Switch button back to Like
             const unlikeBtn = document.getElementById('unlike-btn');
             unlikeBtn.outerHTML = `<button id="like-btn" class="btn btn-primary">Like</button>`;
 
-            // 添加 Like 按鈕的事件監聽器
             document.getElementById('like-btn').addEventListener('click', async () => {
               try {
                 const likeResponse = await fetch('/recipes/like/<%= recipe._id %>', {
@@ -110,21 +110,21 @@
                 }
               } catch (error) {
                 console.error('Error : ', error);
-                alert('Error when like a recipe. Login Please.');
+                alert('Error when liking a recipe. Please log in.');
               }
             });
           } else {
-            alert(data.message || 'Cannot dislike this recipe.。');
+            alert(data.message || 'Cannot unlike this recipe.');
           }
         } catch (error) {
-          console.error('Error : ：', error);
-          alert('Error when dislike a recipe. Login Please.');
+          console.error('Error: ', error);
+          alert('Error when unliking a recipe. Please log in.');
         }
       });
     <% } else { %>
+      // User has not liked: show "Like" functionality
       document.getElementById('like-btn').addEventListener('click', async () => {
         try {
-          // 發送喜歡的請求
           const response = await fetch('/recipes/like/<%= recipe._id %>', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
@@ -133,13 +133,11 @@
           const data = await response.json();
 
           if (data.success) {
-            // 更新喜歡數量
             document.getElementById('like-count').innerText = data.likes;
-            // 更改按鈕為 Unlike
+            // Switch button to Unlike
             const likeBtn = document.getElementById('like-btn');
             likeBtn.outerHTML = `<button id="unlike-btn" class="btn btn-danger">Unlike</button>`;
 
-            // 添加 Unlike 按鈕的事件監聽器
             document.getElementById('unlike-btn').addEventListener('click', async () => {
               try {
                 const unlikeResponse = await fetch('/recipes/unlike/<%= recipe._id %>', {
@@ -156,21 +154,21 @@
                   document.getElementById('unlike-btn').classList.add('btn-primary');
                   document.getElementById('unlike-btn').id = 'like-btn';
                 } else {
-                  alert(unlikeData.message || 'Cannot dislike this recipe.');
+                  alert(unlikeData.message || 'Cannot unlike this recipe.');
                 }
               } catch (error) {
-                console.error('Error : ：', error);
-                alert('Error when dislike a recipe. Login Please.。');
+                console.error('Error: ', error);
+                alert('Error when unliking a recipe. Please log in.');
               }
             });
           } else {
-            alert(data.message || 'Cannot like this recipe.。');
+            alert(data.message || 'Cannot like this recipe.');
           }
         } catch (error) {
-          console.error('Error : ：', error);
-          alert('Error when like a recipe. Login Please.');
+          console.error('Error: ', error);
+          alert('Error when liking a recipe. Please log in.');
         }
       });
     <% } %>
+  <% } %>
 </script>
-

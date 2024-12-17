@@ -2,12 +2,13 @@
 <%- include('partials/header') %>
 <link rel="stylesheet" href="/css/styles.css">
 
-<!-- Search  add recipe bar -->
+<!-- Search and Add Recipe Bar -->
 <div class="row mb-4">
   <div class="col-md-8">
     <form action="/search" method="GET">
       <div class="input-group">
         <input type="text" class="form-control" name="q" placeholder="Search recipes..." required>
+        <input type="hidden" name="category" value="<%= currentCategory %>">
         <div class="input-group-append">
           <button class="btn btn-primary" type="submit">Search</button>
         </div>
@@ -23,74 +24,129 @@
 
 <!-- Category Navigation Bar -->
 <div class="mb-4">
-  <nav class="nav">
-    <a class="nav-link active" href="#">All</a>
-    <a class="nav-link" href="#">Breakfast</a>
-    <a class="nav-link" href="#">Lunch</a>
-    <a class="nav-link" href="#">Dinner</a>
-    <a class="nav-link" href="#">Dessert</a>
-    <!-- Add more categories -->
+  <nav class="nav nav-pills">
+    <a class="nav-link <%= currentCategory === 'all' ? 'active' : '' %>" 
+       href="/">All</a>
+    <a class="nav-link <%= currentCategory === 'breakfast' ? 'active' : '' %>" 
+       href="/?category=breakfast">Breakfast</a>
+    <a class="nav-link <%= currentCategory === 'lunch' ? 'active' : '' %>" 
+       href="/?category=lunch">Lunch</a>
+    <a class="nav-link <%= currentCategory === 'dinner' ? 'active' : '' %>" 
+       href="/?category=dinner">Dinner</a>
+    <a class="nav-link <%= currentCategory === 'dessert' ? 'active' : '' %>" 
+       href="/?category=dessert">Dessert</a>
   </nav>
 </div>
 
-<!-- Daily Recipe -->
-<div class="mb-4">
-  <h3>Daily Recipe</h3>
-  <% if (dailyRecipe) { %>
-    <div class="card mb-3" style="max-width: 540px;">
-      <div class="row no-gutters">
-        <div class="col-md-4">
-          <img src="<%= dailyRecipe.photo %>" class="card-img" alt="Daily Recipe">
-        </div>
-        <div class="col-md-8">
-          <div class="card-body">
-            <h5 class="card-title"><a href="/recipes/<%= dailyRecipe._id %>"><%= dailyRecipe.description %></a></h5>
-            <p class="card-text">Likes: <%= dailyRecipe.likes %></p>
-            <a href="/recipes/<%= dailyRecipe._id %>" class="btn btn-sm btn-primary">View Recipe</a>
+<% if (showCategoryOnly) { %>
+  <!-- Category Recipes List -->
+  <div class="mb-4">
+    <h3><%= currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1) %> Recipes</h3>
+    <div class="row">
+      <% if (recipes && recipes.length > 0) { %>
+        <% recipes.forEach(recipe => { %>
+          <div class="col-md-4 mb-4">
+            <div class="card h-100">
+              <img src="<%= recipe.photo %>" class="card-img-top" alt="Recipe Image">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/recipes/<%= recipe._id %>"><%= recipe.description %></a>
+                </h5>
+                <p class="card-text">
+                  <small class="text-muted">Ingredients: <%= recipe.ingredient.join(', ') %></small>
+                </p>
+                <p class="card-text">Likes: <%= recipe.likes %></p>
+                <a href="/recipes/<%= recipe._id %>" class="btn btn-sm btn-primary">View Recipe</a>
+              </div>
+            </div>
           </div>
+        <% }) %>
+      <% } else { %>
+        <div class="col-12">
+          <p>No recipes found in this category.</p>
         </div>
-      </div>
+      <% } %>
     </div>
-    <button id="refresh-daily" class="btn btn-secondary">Refresh</button>
-  <% } else { %>
-    <p>No daily recipe available.</p>
-  <% } %>
-</div>
-
-<!-- Hot Recipes -->
-<div class="mb-4">
-  <h3>Hot Recipes</h3>
-  <div class="row">
-    <% hotRecipes.forEach(recipe => { %>
-      <div class="col-md-4">
-        <div class="card mb-3">
-          <img src="<%= recipe.photo %>" class="card-img-top" alt="Hot Recipe">
-          <div class="card-body">
-            <h5 class="card-title"><a href="/recipes/<%= recipe._id %>"><%= recipe.description %></a></h5>
-            <p class="card-text">Likes: <%= recipe.likes %></p>
+  </div>
+<% } else { %>
+  <!-- Daily Recipe -->
+  <div class="mb-4">
+    <h3>Daily Recipe</h3>
+    <% if (dailyRecipe) { %>
+      <div class="card mb-3" style="max-width: 540px;">
+        <div class="row no-gutters">
+          <div class="col-md-4">
+            <img src="<%= dailyRecipe.photo %>" class="card-img" alt="Daily Recipe">
+          </div>
+          <div class="col-md-8">
+            <div class="card-body">
+              <h5 class="card-title">
+                <a href="/recipes/<%= dailyRecipe._id %>"><%= dailyRecipe.description %></a>
+              </h5>
+              <p class="card-text">
+                Category: <%= dailyRecipe.category %>
+                <br>
+                Likes: <%= dailyRecipe.likes %>
+              </p>
+              <a href="/recipes/<%= dailyRecipe._id %>" class="btn btn-sm btn-primary">View Recipe</a>
+            </div>
           </div>
         </div>
       </div>
-    <% }) %>
+      <button id="refresh-daily" class="btn btn-secondary">Refresh</button>
+    <% } else { %>
+      <p>No daily recipe available.</p>
+    <% } %>
   </div>
-</div>
 
-<!-- Top Cooks -->
-<div class="mb-4">
-  <h3>Top Cooks</h3>
-  <div class="row">
-    <% topCooks.forEach(cook => { %>
-      <div class="col-md-4">
-        <div class="card mb-3">
-          <img src="<%= cook.profile.photo || '/images/default-avatar.png' %>" class="card-img-top" alt="Chef Avatar">
-          <div class="card-body">
-            <h5 class="card-title"><%= cook.profile.first_name %> <%= cook.profile.last_name %></h5>
-            <p class="card-text">Likes: <!-- Add data as needed --></p>
+  <!-- Hot Recipes -->
+  <div class="mb-4">
+    <h3>Hot Recipes</h3>
+    <div class="row">
+      <% hotRecipes.forEach(recipe => { %>
+        <div class="col-md-4">
+          <div class="card mb-3">
+            <img src="<%= recipe.photo %>" class="card-img-top" alt="Hot Recipe">
+            <div class="card-body">
+              <h5 class="card-title">
+                <a href="/recipes/<%= recipe._id %>"><%= recipe.description %></a>
+              </h5>
+              <p class="card-text">
+                Category: <%= recipe.category %>
+                <br>
+                Likes: <%= recipe.likes %>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-    <% }) %>
+      <% }) %>
+    </div>
   </div>
-</div>
+
+  <!-- Top Cooks -->
+  <div class="mb-4">
+    <h3>Top Cooks</h3>
+    <div class="row">
+      <% topCooks.forEach(cook => { %>
+        <div class="col-md-4">
+          <div class="card mb-3">
+            <img src="<%= cook.profile.photo || '/images/default-avatar.png' %>" class="card-img-top" alt="Chef Avatar">
+            <div class="card-body">
+              <h5 class="card-title"><%= cook.profile.first_name %> <%= cook.profile.last_name %></h5>
+              <p class="card-text">Likes: <!-- Add data as needed --></p>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+<% } %>
+
+<!-- Add this script for refresh button functionality -->
+<script>
+document.getElementById('refresh-daily')?.addEventListener('click', () => {
+  window.location.reload();
+});
+</script>
 
 <%- include('partials/footer') %>

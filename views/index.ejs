@@ -23,16 +23,11 @@
 <!-- Category Navigation Bar -->
 <div class="mb-4">
   <nav class="nav nav-pills">
-    <a class="nav-link <%= currentCategory === 'all' ? 'active' : '' %>" 
-       href="/?category=all">All</a>
-    <a class="nav-link <%= currentCategory === 'breakfast' ? 'active' : '' %>" 
-       href="/?category=breakfast">Breakfast</a>
-    <a class="nav-link <%= currentCategory === 'lunch' ? 'active' : '' %>" 
-       href="/?category=lunch">Lunch</a>
-    <a class="nav-link <%= currentCategory === 'dinner' ? 'active' : '' %>" 
-       href="/?category=dinner">Dinner</a>
-    <a class="nav-link <%= currentCategory === 'dessert' ? 'active' : '' %>" 
-       href="/?category=dessert">Dessert</a>
+    <a class="nav-link <%= currentCategory === 'all' ? 'active' : '' %>" href="/?category=all">All</a>
+    <a class="nav-link <%= currentCategory === 'breakfast' ? 'active' : '' %>" href="/?category=breakfast">Breakfast</a>
+    <a class="nav-link <%= currentCategory === 'lunch' ? 'active' : '' %>" href="/?category=lunch">Lunch</a>
+    <a class="nav-link <%= currentCategory === 'dinner' ? 'active' : '' %>" href="/?category=dinner">Dinner</a>
+    <a class="nav-link <%= currentCategory === 'dessert' ? 'active' : '' %>" href="/?category=dessert">Dessert</a>
   </nav>
 </div>
 
@@ -45,7 +40,13 @@
         <% recipes.forEach(recipe => { %>
           <div class="col-md-4 mb-4">
             <div class="card h-100">
-              <img src="<%= recipe.photo %>" class="card-img-top" alt="Recipe Image">
+              <% if (recipe.photo && /^https?:\/\//.test(recipe.photo)) { %>
+                <img src="<%= recipe.photo %>" class="card-img-top" alt="Recipe Image">
+              <% } else if (recipe.photo) { %>
+                <img src="data:image/jpeg;base64,<%= recipe.photo %>" class="card-img-top" alt="Recipe Image">
+              <% } else { %>
+                <img src="/images/default-recipe.png" class="card-img-top" alt="Default Recipe Image">
+              <% } %>
               <div class="card-body">
                 <h5 class="card-title">
                   <a href="/recipes/<%= recipe._id %>"><%= recipe.description %></a>
@@ -71,7 +72,13 @@
       <div class="card mb-3" style="max-width: 540px;">
         <div class="row no-gutters">
           <div class="col-md-4">
-            <img src="<%= dailyRecipe.photo %>" class="card-img" alt="Daily Recipe">
+            <% if (dailyRecipe.photo && /^https?:\/\//.test(dailyRecipe.photo)) { %>
+              <img src="<%= dailyRecipe.photo %>" class="card-img" alt="Daily Recipe">
+            <% } else if (dailyRecipe.photo) { %>
+              <img src="data:image/jpeg;base64,<%= dailyRecipe.photo %>" class="card-img" alt="Daily Recipe">
+            <% } else { %>
+              <img src="/images/default-recipe.png" class="card-img" alt="Default Recipe Image">
+            <% } %>
           </div>
           <div class="col-md-8">
             <div class="card-body">
@@ -98,7 +105,13 @@
         <% hotRecipes.forEach(recipe => { %>
           <div class="col-md-4">
             <div class="card mb-3">
-              <img src="<%= recipe.photo %>" class="card-img-top" alt="Hot Recipe">
+              <% if (recipe.photo && /^https?:\/\//.test(recipe.photo)) { %>
+                <img src="<%= recipe.photo %>" class="card-img-top" alt="Hot Recipe">
+              <% } else if (recipe.photo) { %>
+                <img src="data:image/jpeg;base64,<%= recipe.photo %>" class="card-img-top" alt="Hot Recipe">
+              <% } else { %>
+                <img src="/images/default-recipe.png" class="card-img-top" alt="Default Recipe Image">
+              <% } %>
               <div class="card-body">
                 <h5 class="card-title">
                   <a href="/recipes/<%= recipe._id %>"><%= recipe.description %></a>
@@ -108,6 +121,10 @@
             </div>
           </div>
         <% }) %>
+      <% } else { %>
+        <div class="col-12">
+          <p>No hot recipes available.</p>
+        </div>
       <% } %>
     </div>
   </div>
@@ -120,7 +137,13 @@
         <% topCooks.forEach(cook => { %>
           <div class="col-md-4">
             <div class="card mb-3">
-              <img src="<%= cook.profile.photo || '/images/default-avatar.png' %>" class="card-img-top" alt="Chef Avatar">
+              <% if (cook.profile.photo && /^https?:\/\//.test(cook.profile.photo)) { %>
+                <img src="<%= cook.profile.photo %>" class="card-img-top" alt="Chef Avatar">
+              <% } else if (cook.profile.photo) { %>
+                <img src="data:image/jpeg;base64,<%= cook.profile.photo %>" class="card-img-top" alt="Chef Avatar">
+              <% } else { %>
+                <img src="/images/default-avatar.png" class="card-img-top" alt="Default Avatar">
+              <% } %>
               <div class="card-body">
                 <h5 class="card-title"><%= cook.profile.first_name %> <%= cook.profile.last_name %></h5>
                 <p class="card-text">Likes: <!-- Add data as needed --></p>
@@ -128,9 +151,40 @@
             </div>
           </div>
         <% }) %>
+      <% } else { %>
+        <div class="col-12">
+          <p>No top cooks available.</p>
+        </div>
       <% } %>
     </div>
   </div>
 <% } %>
 
 <%- include('partials/footer') %>
+
+<!-- Like Button Script -->
+<script>
+  document.getElementById('like-btn').addEventListener('click', async () => {
+    try {
+      // Send like request
+      const response = await fetch('/recipes/like/<%= recipe._id %>', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update like count
+        document.getElementById('like-count').innerText = data.likes;
+        document.getElementById('like-btn').innerText = 'Liked';
+        document.getElementById('like-btn').disabled = true;
+      } else {
+        alert(data.message || 'Unable to like this recipe.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred while liking the recipe.');
+    }
+  });
+</script>

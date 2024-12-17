@@ -10,17 +10,17 @@ const Like = require('../models/Like');
 // Profile page route
 router.get('/', async (req, res) => {
     try {
-        // 查找用户个人资料
+        // find profile for user
         const profile = await Profile.findOne({ uid: req.session.userId });
         
-        // 查找用户创建的食谱
+        // related recipe
         const recipes = await Recipe.find({ uid: req.session.userId });
             
-        // 查找用户的评论
+        // related comments
         const comments = await Comment.find({ uid: req.session.userId })
             .sort({ created_time: -1 });
             
-        // 查找用户点赞的内容
+        // related likes
         const likes = await Like.find({ uid: req.session.userId });
 
         res.render('profile', {

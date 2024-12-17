@@ -2,12 +2,18 @@
 
 <div class="container mt-4">
   <div class="card mb-4">
-    <img src="<%= recipe.photo %>" class="card-img-top" alt="Recipe Image">
+    <% if (recipe.photo) { %>
+      <!-- Replace 'image/jpeg' with the actual MIME type if different -->
+      <img src="data:image/jpeg;base64,<%= recipe.photo %>" class="card-img-top" alt="Recipe Image">
+    <% } else { %>
+      <!-- Fallback image if no photo is available -->
+      <img src="https://cdn.glitch.global/40caaa32-7609-49ce-895e-9832535559ab/FOOD.jpg?v=1734423437576" class="card-img-top" alt="Default Recipe Image">
+    <% } %>
     <div class="card-body">
-      <!-- 菜谱描述 -->
+      <!-- Recipe Description -->
       <h3 class="card-title"><%= recipe.description %></h3>
 
-      <!-- 配料 -->
+      <!-- Ingredients -->
       <h5>Ingredients</h5>
       <ul>
         <% recipe.ingredient.forEach(item => { %>
@@ -15,19 +21,19 @@
         <% }) %>
       </ul>
 
-      <!-- 做法 -->
+      <!-- Instructions -->
       <h5>Instructions</h5>
       <p><%= recipe.instruction %></p>
 
-      <!-- 点赞数显示 -->
+      <!-- Likes Display -->
       <p>Likes: <span id="like-count"><%= recipe.likes || 0 %></span></p>
 
-      <!-- 点赞按钮 -->
+      <!-- Like Button -->
       <button id="like-btn" class="btn btn-primary">Like</button>
     </div>
   </div>
 
-  <!-- 作者信息 -->
+  <!-- Author Information -->
   <% if (creator) { %>
     <div class="mb-4">
       <h5>Recipe Created By:</h5>
@@ -35,7 +41,7 @@
     </div>
   <% } %>
 
-  <!-- 评论部分 -->
+  <!-- Comments Section -->
   <div class="comments-section">
     <h4>Comments</h4>
     <p>Comment functionality can be added here.</p>
@@ -44,11 +50,11 @@
 
 <%- include('partials/footer') %>
 
-<!-- 点赞按钮脚本 -->
+<!-- Like Button Script -->
 <script>
   document.getElementById('like-btn').addEventListener('click', async () => {
     try {
-      // 发送点赞请求
+      // Send like request
       const response = await fetch('/recipes/like/<%= recipe._id %>', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
@@ -57,7 +63,7 @@
       const data = await response.json();
 
       if (data.success) {
-        // 更新点赞数
+        // Update like count
         document.getElementById('like-count').innerText = data.likes;
         document.getElementById('like-btn').innerText = 'Liked';
         document.getElementById('like-btn').disabled = true;

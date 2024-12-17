@@ -5,7 +5,7 @@ const User = require('./models/User');
 const Profile = require('./models/Profile');
 const bcrypt = require('bcrypt');
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/recipe-app', {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(async () => {
@@ -39,7 +39,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/recipe-ap
     description: 'Tomato Scrambled Eggs',
     ingredient: ['Tomatoes', 'Eggs', 'Salt', 'Sugar', 'Oil'],
     instruction: '1. Beat eggs. 2. Chop tomatoes. 3. Scramble eggs. 4. Add tomatoes. 5. Season.',
-    photo: '/images/tomato-egg.jpg',
+    photo: 'https://cdn.glitch.global/40caaa32-7609-49ce-895e-9832535559ab/tomatto-eggs-1.image.png?v=1734397080350',
     likes: 10,
   });
   await recipe.save();

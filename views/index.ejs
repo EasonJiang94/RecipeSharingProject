@@ -166,36 +166,64 @@
 
 <%- include('partials/footer') %>
 
-<!-- Like Button Script -->
+<!-- Like and Unlike Button Script -->
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', function() {
     const likeButtons = document.querySelectorAll('.like-btn');
+    const unlikeButtons = document.querySelectorAll('.unlike-btn');
 
+    // 處理 Like 按鈕
     likeButtons.forEach(button => {
-      button.addEventListener('click', async () => {
-        const recipeId = button.getAttribute('data-recipe-id');
-
+      button.addEventListener('click', async function() {
+        const recipeId = this.getAttribute('data-recipe-id');
         try {
-          const response = await fetch(`/recipes/like/${recipeId}`, {
+          // 發送喜歡的請求
+          const response = await fetch('/recipes/like/' + recipeId, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
           });
 
           const data = await response.json();
-          console.log("like response : ", response)
+
           if (data.success) {
-            // Update like count
-            const likeCountSpan = button.parentElement.querySelector('.like-count');
-            likeCountSpan.innerText = data.likes;
-            // Update button state
-            button.innerText = 'Liked';
-            button.disabled = true;
+            // 更新喜歡數量
+            document.getElementById('like-count-' + recipeId).innerText = data.likes;
+            // 更改按鈕為 Unlike
+            this.outerHTML = `<button class="btn btn-danger unlike-btn" data-recipe-id="${recipeId}">Unlike</button>`;
           } else {
-            alert(data.message || 'Unable to like this recipe.');
+            alert(data.message || 'Cannot like this reciep. Login Please.');
           }
         } catch (error) {
-          console.error('Error:', error);
-          alert('An error occurred while liking the recipe.');
+          console.error('Error', error);
+          alert('Error when like recipe. Login Please.');
+        }
+      });
+    });
+
+    // 處理 Unlike 按鈕
+    unlikeButtons.forEach(button => {
+      button.addEventListener('click', async function() {
+        const recipeId = this.getAttribute('data-recipe-id');
+        try {
+          // 發送取消喜歡的請求
+          const response = await fetch('/recipes/unlike/' + recipeId, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // 更新喜歡數量
+            document.getElementById('like-count-' + recipeId).innerText = data.likes;
+            // 更改按鈕為 Like
+            this.outerHTML = `<button class="btn btn-primary like-btn" data-recipe-id="${recipeId}">Like</button>`;
+          } else {
+            alert(data.message || 'Cannot dislike this recipe. Login Please.');
+          }
+        } catch (error) {
+          console.error('Error: ', error);
+          alert('Error when dislike recipe. Login Please.');
         }
       });
     });

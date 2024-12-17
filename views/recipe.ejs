@@ -71,28 +71,106 @@
 <!-- Like Button Script -->
 <script>
   <% if (user) { %>
-    document.getElementById('like-btn').addEventListener('click', async () => {
-      try {
-        // Send like request
-        const response = await fetch('/recipes/like/<%= recipe._id %>', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
+    <% if (hasLiked) { %>
+      document.getElementById('unlike-btn').addEventListener('click', async () => {
+        try {
+          // 發送取消喜歡的請求
+          const response = await fetch('/recipes/unlike/<%= recipe._id %>', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
 
-        const data = await response.json();
+          const data = await response.json();
 
-        if (data.success) {
-          // Update like count
-          document.getElementById('like-count').innerText = data.likes;
-          document.getElementById('like-btn').innerText = 'Liked';
-          document.getElementById('like-btn').disabled = true;
-        } else {
-          alert(data.message || 'Unable to like this recipe.');
+          if (data.success) {
+            // 更新喜歡數量
+            document.getElementById('like-count').innerText = data.likes;
+            // 更改按鈕為 Like
+            const unlikeBtn = document.getElementById('unlike-btn');
+            unlikeBtn.outerHTML = `<button id="like-btn" class="btn btn-primary">Like</button>`;
+
+            // 添加 Like 按鈕的事件監聽器
+            document.getElementById('like-btn').addEventListener('click', async () => {
+              try {
+                const likeResponse = await fetch('/recipes/like/<%= recipe._id %>', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' }
+                });
+
+                const likeData = await likeResponse.json();
+
+                if (likeData.success) {
+                  document.getElementById('like-count').innerText = likeData.likes;
+                  document.getElementById('like-btn').innerText = 'Liked';
+                  document.getElementById('like-btn').classList.remove('btn-primary');
+                  document.getElementById('like-btn').classList.add('btn-danger');
+                  document.getElementById('like-btn').id = 'unlike-btn';
+                } else {
+                  alert(likeData.message || 'Cannot like this recipe.');
+                }
+              } catch (error) {
+                console.error('Error : ', error);
+                alert('Error when like a recipe. Login Please.');
+              }
+            });
+          } else {
+            alert(data.message || 'Cannot dislike this recipe.。');
+          }
+        } catch (error) {
+          console.error('Error : ：', error);
+          alert('Error when dislike a recipe. Login Please.');
         }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('An error occurred while liking the recipe.');
-      }
-    });
-  <% } %>
+      });
+    <% } else { %>
+      document.getElementById('like-btn').addEventListener('click', async () => {
+        try {
+          // 發送喜歡的請求
+          const response = await fetch('/recipes/like/<%= recipe._id %>', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // 更新喜歡數量
+            document.getElementById('like-count').innerText = data.likes;
+            // 更改按鈕為 Unlike
+            const likeBtn = document.getElementById('like-btn');
+            likeBtn.outerHTML = `<button id="unlike-btn" class="btn btn-danger">Unlike</button>`;
+
+            // 添加 Unlike 按鈕的事件監聽器
+            document.getElementById('unlike-btn').addEventListener('click', async () => {
+              try {
+                const unlikeResponse = await fetch('/recipes/unlike/<%= recipe._id %>', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' }
+                });
+
+                const unlikeData = await unlikeResponse.json();
+
+                if (unlikeData.success) {
+                  document.getElementById('like-count').innerText = unlikeData.likes;
+                  document.getElementById('unlike-btn').innerText = 'Like';
+                  document.getElementById('unlike-btn').classList.remove('btn-danger');
+                  document.getElementById('unlike-btn').classList.add('btn-primary');
+                  document.getElementById('unlike-btn').id = 'like-btn';
+                } else {
+                  alert(unlikeData.message || 'Cannot dislike this recipe.');
+                }
+              } catch (error) {
+                console.error('Error : ：', error);
+                alert('Error when dislike a recipe. Login Please.。');
+              }
+            });
+          } else {
+            alert(data.message || 'Cannot like this recipe.。');
+          }
+        } catch (error) {
+          console.error('Error : ：', error);
+          alert('Error when like a recipe. Login Please.');
+        }
+      });
+    <% } %>
 </script>
+

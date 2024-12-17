@@ -1,27 +1,32 @@
 // routes/profile.js
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
 const Profile = require('../models/Profile');
-const Recipe = require('../models/Recipe');
+const RecipeUser = require('../models/RecipeUser');
 const Comment = require('../models/Comment');
 const Like = require('../models/Like');
+const { ensureAuthenticated } = require('../config/auth');
 
 // Profile page route
-router.get('/', async (req, res) => {
+router.get('/', ensureAuthenticated, async (req, res) => {
+    console.log("Authenticated User ID:", req.user._id);
     try {
-        // find profile for user
-        const profile = await Profile.findOne({ uid: req.session.userId });
-        
-        // related recipe
-        const recipes = await Recipe.find({ uid: req.session.userId });
-            
-        // related comments
-        const comments = await Comment.find({ uid: req.session.userId })
+        const userId = req.user._id;
+
+        // Find profile for user
+        const profile = await Profile.findOne({ uid: userId });
+
+        // Fetch recipes using RecipeUser model
+        const recipeUserEntries = await RecipeUser.find({ uid: userId }).populate('rid');
+        const recipes = recipeUserEntries.map(entry => entry.rid);
+        console.log("User's Recipes:", recipes);
+
+        // Related comments
+        const comments = await Comment.find({ uid: userId })
             .sort({ created_time: -1 });
-            
-        // related likes
-        const likes = await Like.find({ uid: req.session.userId });
+
+        // Related likes
+        const likes = await Like.find({ uid: userId });
 
         res.render('profile', {
             profile: profile || {},
@@ -36,12 +41,13 @@ router.get('/', async (req, res) => {
 });
 
 // Update profile information
-router.post('/update', async (req, res) => {
+router.post('/update', ensureAuthenticated, async (req, res) => {
     try {
         const { first_name, last_name, introduction } = req.body;
-        
+        const userId = req.user._id;
+
         await Profile.findOneAndUpdate(
-            { uid: req.session.userId },
+            { uid: userId },
             {
                 $set: {
                     first_name,
@@ -61,12 +67,13 @@ router.post('/update', async (req, res) => {
 });
 
 // Update profile photo
-router.post('/update-photo', async (req, res) => {
+router.post('/update-photo', ensureAuthenticated, async (req, res) => {
     try {
         const { photo } = req.body;
+        const userId = req.user._id;
 
         await Profile.findOneAndUpdate(
-            { uid: req.session.userId },
+            { uid: userId },
             {
                 $set: {
                     photo,
@@ -84,13 +91,13 @@ router.post('/update-photo', async (req, res) => {
 });
 
 // Delete recipe
-router.post('/delete-recipe/:id', async (req, res) => {
+router.post('/delete-recipe/:id', ensureAuthenticated, async (req, res) => {
     try {
         await Recipe.deleteOne({
             _id: req.params.id,
-            uid: req.session.userId
+            uid: req.user._id
         });
-        
+
         res.redirect('/profile');
     } catch (error) {
         console.error('Error deleting recipe:', error);
@@ -99,13 +106,13 @@ router.post('/delete-recipe/:id', async (req, res) => {
 });
 
 // Delete comment
-router.post('/delete-comment/:id', async (req, res) => {
+router.post('/delete-comment/:id', ensureAuthenticated, async (req, res) => {
     try {
         await Comment.deleteOne({
             _id: req.params.id,
-            uid: req.session.userId
+            uid: req.user._id
         });
-        
+
         res.redirect('/profile');
     } catch (error) {
         console.error('Error deleting comment:', error);

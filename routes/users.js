@@ -16,17 +16,15 @@ router.post('/register', async (req, res) => {
   const { account, password, password2, first_name, last_name } = req.body;
   let errors = [];
 
-  // Check required fields
+  // Validate input fields
   if (!account || !password || !password2 || !first_name || !last_name) {
     errors.push({ msg: 'Please fill in all fields' });
   }
 
-  // Check if passwords match
   if (password !== password2) {
     errors.push({ msg: 'Passwords do not match' });
   }
 
-  // Check password length
   if (password.length < 6) {
     errors.push({ msg: 'Password should be at least 6 characters' });
   }
@@ -97,10 +95,19 @@ router.get('/login', (req, res) => {
 
 // Login handling
 router.post('/login', (req, res, next) => {
-  passport.authenticate('local', {
-    successRedirect: '/',
-    failureRedirect: '/users/login',
-    failureFlash: true,
+  passport.authenticate('local', (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return res.redirect('/users/login');
+    }
+    req.logIn(user, (err) => {
+      if (err) {
+        return next(err);
+      }
+      return res.redirect('/');
+    });
   })(req, res, next);
 });
 

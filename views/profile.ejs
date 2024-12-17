@@ -6,7 +6,7 @@
         <!-- Profile Picture Section -->
         <div class="col-md-4 text-center">
             <div class="mb-4">
-                <img src="<%= user.photo || '/images/default-avatar.png' %>" 
+                <img src="<%= user.photo || 'https://cdn.glitch.global/40caaa32-7609-49ce-895e-9832535559ab/chef.jpeg?v=1734429966680' %>" 
                      alt="Profile Picture" 
                      class="rounded-circle img-thumbnail"
                      style="width: 200px; height: 200px; object-fit: cover;">
@@ -19,44 +19,48 @@
         <!-- Profile Information Section -->
         <div class="col-md-8">
             <h3 class="mb-4">Profile Information</h3>
-            <form action="/profile/update" method="POST" class="needs-validation" novalidate>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="firstName" class="form-label">First Name</label>
-                        <input type="text" 
-                               class="form-control" 
-                               id="firstName" 
-                               name="first_name"
-                               value="<%= user.first_name %>"
-                               required>
-                        <div class="invalid-feedback">
-                            First name is required
+            <% if (profile) { %>
+                <form action="/profile/update" method="POST" class="needs-validation" novalidate>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="firstName" class="form-label">First Name</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="firstName" 
+                                   name="first_name"
+                                   value="<%= profile.first_name %>"
+                                   required>
+                            <div class="invalid-feedback">
+                                First name is required
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="lastName" class="form-label">Last Name</label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="lastName" 
+                                   name="last_name"
+                                   value="<%= profile.last_name %>"
+                                   required>
+                            <div class="invalid-feedback">
+                                Last name is required
+                            </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <label for="lastName" class="form-label">Last Name</label>
-                        <input type="text" 
-                               class="form-control" 
-                               id="lastName" 
-                               name="last_name"
-                               value="<%= user.last_name %>"
-                               required>
-                        <div class="invalid-feedback">
-                            Last name is required
-                        </div>
+
+                    <div class="mb-3">
+                        <label for="introduction" class="form-label">Introduction</label>
+                        <textarea class="form-control" 
+                                  id="introduction" 
+                                  name="introduction" 
+                                  rows="4"><%= profile.introduction %></textarea>
                     </div>
-                </div>
 
-                <div class="mb-3">
-                    <label for="introduction" class="form-label">Introduction</label>
-                    <textarea class="form-control" 
-                              id="introduction" 
-                              name="introduction" 
-                              rows="4"><%= user.introduction %></textarea>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-            </form>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            <% } else { %>
+                <p class="text-muted">Profile information not available.</p>
+            <% } %>
         </div>
     </div>
 
@@ -86,15 +90,21 @@
                 <!-- My Recipes Tab -->
                 <div class="tab-pane fade show active" id="recipes" role="tabpanel">
                     <div class="row">
-                        <% if (user.recipes && user.recipes.length > 0) { %>
-                            <% user.recipes.forEach(recipe => { %>
+                        <% if (recipes && recipes.length > 0) { %>
+                            <% recipes.forEach(recipe => { %>
                                 <div class="col-md-4 mb-4">
                                     <div class="card">
-                                        <img src="<%= recipe.photo %>" class="card-img-top" alt="Recipe Image">
+                                        <% if (recipe.photo && /^https?:\/\//.test(recipe.photo)) { %>
+                                            <img src="<%= recipe.photo %>" class="card-img-top" alt="Recipe Image">
+                                        <% } else if (recipe.photo) { %>
+                                            <img src="data:image/jpeg;base64,<%= recipe.photo %>" class="card-img-top" alt="Recipe Image">
+                                        <% } else { %>
+                                            <img src="https://cdn.glitch.global/40caaa32-7609-49ce-895e-9832535559ab/FOOD.jpg?v=1734423437576" class="card-img-top" alt="Default Recipe Image">
+                                        <% } %>
                                         <div class="card-body">
-                                            <h5 class="card-title"><%= recipe.title %></h5>
+                                            <h5 class="card-title"><%= recipe.description %></h5>
                                             <p class="card-text"><%= recipe.description.substring(0, 100) %>...</p>
-                                            <a href="/recipe/<%= recipe.id %>" class="btn btn-outline-primary">View Recipe</a>
+                                            <a href="/recipes/<%= recipe._id %>" class="btn btn-outline-primary">View Recipe</a>
                                         </div>
                                     </div>
                                 </div>
@@ -109,9 +119,9 @@
 
                 <!-- My Comments Tab -->
                 <div class="tab-pane fade" id="comments" role="tabpanel">
-                    <% if (user.comments && user.comments.length > 0) { %>
+                    <% if (comments && comments.length > 0) { %>
                         <div class="list-group">
-                            <% user.comments.forEach(comment => { %>
+                            <% comments.forEach(comment => { %>
                                 <div class="list-group-item">
                                     <h6 class="mb-1">On recipe: <%= comment.recipe.title %></h6>
                                     <p class="mb-1"><%= comment.content %></p>

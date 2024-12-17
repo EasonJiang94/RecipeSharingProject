@@ -13,7 +13,7 @@ const bodyParser = require('body-parser');
 const app = express();
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/recipe-app', {
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(() => {
@@ -29,12 +29,15 @@ app.set('views', path.join(__dirname, 'views'));
 // Middleware
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: false }));
+
+// Session Middleware
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your_secret_key', // Replace with your secret key
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/recipe-app' }),
+  store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
 }));
+
 app.use(flash());
 
 // Passport configuration
@@ -44,7 +47,7 @@ app.use(passport.session());
 
 // Set global variables
 app.use((req, res, next) => {
-  res.locals.user = req.user;
+  res.locals.user = req.user; // Passport adds user to req
   res.locals.success_msg = req.flash('success_msg');
   res.locals.error_msg = req.flash('error_msg');
   res.locals.error = req.flash('error');
@@ -56,7 +59,8 @@ app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));
 app.use('/recipes', require('./routes/recipes'));
 app.use('/admin', require('./routes/admin'));
-app.use('/profile',require('./routes/profile'));
+app.use('/profile', require('./routes/profile'));
+
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

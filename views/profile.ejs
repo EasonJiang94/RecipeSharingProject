@@ -16,52 +16,72 @@
             </button>
         </div>
 
-        <!-- Profile Information Section -->
-        <div class="col-md-8">
-            <h3 class="mb-4">Profile Information</h3>
-            <% if (profile) { %>
-                <form action="/profile/update" method="POST" class="needs-validation" novalidate>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="firstName" class="form-label">First Name</label>
-                            <input type="text" 
-                                   class="form-control" 
-                                   id="firstName" 
-                                   name="first_name"
-                                   value="<%= profile.first_name %>"
-                                   required>
-                            <div class="invalid-feedback">
-                                First name is required
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="lastName" class="form-label">Last Name</label>
-                            <input type="text" 
-                                   class="form-control" 
-                                   id="lastName" 
-                                   name="last_name"
-                                   value="<%= profile.last_name %>"
-                                   required>
-                            <div class="invalid-feedback">
-                                Last name is required
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="introduction" class="form-label">Introduction</label>
-                        <textarea class="form-control" 
-                                  id="introduction" 
-                                  name="introduction" 
-                                  rows="4"><%= profile.introduction %></textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </form>
-            <% } else { %>
-                <p class="text-muted">Profile information not available.</p>
-            <% } %>
+        <!-- Profile Display Section -->
+        <div id="profileDisplay" class="col-md-8 mb-4">
+            <h3><%= profile.first_name %> <%= profile.last_name %></h3>
+            <p><%= profile.introduction %></p>
+            <button class="btn btn-outline-secondary" id="editProfileBtn">Edit Profile</button>
         </div>
+
+        <!-- Profile Edit Form (Hidden by Default) -->
+        <div id="profileEditForm" class="col-md-8" style="display: none;">
+            <h3 class="mb-4">Edit Profile Information</h3>
+            <form action="/profile/update" method="POST" class="needs-validation" novalidate>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="firstName" class="form-label">First Name</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="firstName" 
+                               name="first_name"
+                               value="<%= profile.first_name %>"
+                               required>
+                        <div class="invalid-feedback">
+                            First name is required.
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="lastName" class="form-label">Last Name</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="lastName" 
+                               name="last_name"
+                               value="<%= profile.last_name %>"
+                               required>
+                        <div class="invalid-feedback">
+                            Last name is required.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="introduction" class="form-label">Introduction</label>
+                    <textarea class="form-control" 
+                              id="introduction" 
+                              name="introduction" 
+                              rows="4" 
+                              required><%= profile.introduction %></textarea>
+                    <div class="invalid-feedback">
+                        Introduction is required.
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="button" class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
+            </form>
+        </div>
+
+        <script>
+            document.getElementById('editProfileBtn').addEventListener('click', function() {
+                document.getElementById('profileDisplay').style.display = 'none';
+                document.getElementById('profileEditForm').style.display = 'block';
+            });
+
+            document.getElementById('cancelEditBtn').addEventListener('click', function() {
+                document.getElementById('profileEditForm').style.display = 'none';
+                document.getElementById('profileDisplay').style.display = 'block';
+            });
+        </script>
     </div>
 
     <!-- User Activity Section -->

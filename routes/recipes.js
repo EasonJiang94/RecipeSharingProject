@@ -145,13 +145,15 @@ router.get('/:id', async (req, res) => {
     });
 
     // Map profiles to comments
-    const commentsWithProfiles = comments.map(comment => {
+    const commentsWithProfiles = await Promise.all(comments.map(async comment => {
       const profile = profiles.find(p => p.uid.toString() === comment.uid.toString());
       return {
         ...comment.toObject(),
-        profile: profile || null
+        authorName: profile ? `${profile.first_name} ${profile.last_name}` : 'Anonymous User',
+        created_time: comment.created_time,
+        isAuthor: req.user && comment.uid.toString() === req.user._id.toString()
       };
-    });
+    }));
     
     // Count likes
     const likeCount = await Like.countDocuments({ rid: recipe._id });

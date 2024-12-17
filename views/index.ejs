@@ -20,28 +20,19 @@
   </div>
 </div>
 
-<div class="input-group mb-3" style="max-width: 600px; margin: 2rem auto;">
-  <input type="text" class="form-control" placeholder="Search recipes..." style="border-radius: 25px; padding: 0.75rem 1.5rem; border: 2px solid #eee;">
-  <div class="input-group-append">
-    <button class="btn btn-outline-primary" style="border-radius: 25px; padding: 0.75rem 2rem;">
-      <i class="fa-solid fa-search"></i> Search
-    </button>
-  </div>
-</div>
+
 
 
 
   
 <!-- Category Navigation Bar -->
-<div class="mb-4">
-  <nav class="nav nav-pills">
-    <a class="nav-link <%= currentCategory === 'all' ? 'active' : '' %>" href="/?category=all">All</a>
-    <a class="nav-link <%= currentCategory === 'breakfast' ? 'active' : '' %>" href="/?category=breakfast">Breakfast</a>
-    <a class="nav-link <%= currentCategory === 'lunch' ? 'active' : '' %>" href="/?category=lunch">Lunch</a>
-    <a class="nav-link <%= currentCategory === 'dinner' ? 'active' : '' %>" href="/?category=dinner">Dinner</a>
-    <a class="nav-link <%= currentCategory === 'dessert' ? 'active' : '' %>" href="/?category=dessert">Dessert</a>
-  </nav>
-</div>
+<nav class="nav nav-pills mb-4 justify-content-center" style="box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+  <a class="nav-link <%= currentCategory === 'all' ? 'active' : '' %>" href="/?category=all">All</a>
+  <a class="nav-link <%= currentCategory === 'breakfast' ? 'active' : '' %>" href="/?category=breakfast">Breakfast</a>
+  <a class="nav-link <%= currentCategory === 'lunch' ? 'active' : '' %>" href="/?category=lunch">Lunch</a>
+  <a class="nav-link <%= currentCategory === 'dinner' ? 'active' : '' %>" href="/?category=dinner">Dinner</a>
+  <a class="nav-link <%= currentCategory === 'dessert' ? 'active' : '' %>" href="/?category=dessert">Dessert</a>
+</nav>
 
 <% if (currentCategory && currentCategory !== 'all') { %>
   <!-- Category Recipes List -->

@@ -20,7 +20,7 @@ router.get('/add', ensureAuthenticated, (req, res) => {
 
 // Add recipe handling
 router.post('/add', ensureAuthenticated, async (req, res) => {
-  console.log(re)
+  console.log("request body : ", req.body);
   const { description, ingredient, instruction, category } = req.body;
   let errors = [];
 

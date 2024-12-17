@@ -1,67 +1,98 @@
+// routes/recipes.js
 const express = require('express');
 const router = express.Router();
 const Recipe = require('../models/Recipe');
 const RecipeUser = require('../models/RecipeUser');
-const Like = require('../models/Like'); // 引入 Like 模型
 const { ensureAuthenticated } = require('../config/auth');
 
-// 你的其他路由代码
+// Add recipe page - must before search by id and category
+router.get('/add', ensureAuthenticated, (req, res) => {
+  res.render('add_recipe', {
+    errors: [],
+    recipe: {
+      description: '',
+      ingredient: '',
+      instruction: '',
+      category: ''
+    }
+  });
+});
 
-// Like a recipe
-router.post('/:id/like', async (req, res) => {
-  if (!req.isAuthenticated()) {
-    req.flash('error_msg', 'Please log in first');
-    return res.redirect(`/recipes/${req.params.id}`);
+// Add recipe handling
+router.post('/add', ensureAuthenticated, async (req, res) => {
+  const { description, ingredient, instruction, category } = req.body;
+  let errors = [];
+
+  if (!description || !ingredient || !instruction || !category) {
+    errors.push({ msg: 'Please fill in all fields' });
   }
 
-  const { id } = req.params; // Recipe ID
-  const userId = req.user._id;
+  if (errors.length > 0) {
+    return res.render('add_recipe', {
+      errors,
+      recipe: {
+        description,
+        ingredient,
+        instruction,
+        category
+      }
+    });
+  }
 
   try {
-    // 检查用户是否已点赞
-    const existingLike = await Like.findOne({ uid: userId, rid: id });
+    const newRecipe = new Recipe({
+      description,
+      ingredient: ingredient.split(',').map(item => item.trim()),
+      instruction,
+      category,
+      photo: req.file ? req.file.buffer.toString('base64') : null
+    });
+    
+    const savedRecipe = await newRecipe.save();
 
-    if (existingLike) {
-      req.flash('error_msg', 'You have already liked this recipe');
-      return res.redirect(`/recipes/${id}`);
-    }
+    // Create recipe-user relationship
+    const recipeUser = new RecipeUser({
+      rid: savedRecipe._id,
+      uid: req.user._id
+    });
+    await recipeUser.save();
 
-    // 保存点赞
-    const newLike = new Like({ uid: userId, rid: id });
-    await newLike.save();
-
-    req.flash('success_msg', 'Recipe liked successfully');
-    res.redirect(`/recipes/${id}`);
+    req.flash('success_msg', 'Recipe added successfully');
+    res.redirect('/');
   } catch (err) {
-    console.error('Error liking recipe:', err);
-    req.flash('error_msg', 'Error liking recipe. Please try again.');
-    res.redirect(`/recipes/${id}`);
+    console.error('Error adding recipe:', err);
+    return res.render('add_recipe', {
+      errors: [{ msg: 'Error adding recipe. Please try again.' }],
+      recipe: {
+        description,
+        ingredient,
+        instruction,
+        category
+      }
+    });
   }
 });
 
-// Unlike a recipe
-router.post('/:id/unlike', async (req, res) => {
-  if (!req.isAuthenticated()) {
-    req.flash('error_msg', 'Please log in first');
-    return res.redirect(`/recipes/${req.params.id}`);
-  }
-
-  const { id } = req.params; // Recipe ID
-  const userId = req.user._id;
-
+// View single recipe - 必须放在 /add 路由之后
+router.get('/:id', async (req, res) => {
   try {
-    const like = await Like.findOne({ uid: userId, rid: id });
-    if (!like) {
-      req.flash('error_msg', 'You have not liked this recipe yet');
-      return res.redirect(`/recipes/${id}`);
+    const recipe = await Recipe.findById(req.params.id);
+    if (!recipe) {
+      req.flash('error', 'Recipe not found');
+      return res.redirect('/');
     }
 
-    await Like.findByIdAndDelete(like._id);
-    req.flash('success_msg', 'Recipe unliked successfully');
-    res.redirect(`/recipes/${id}`);
+    const recipeUser = await RecipeUser.findOne({ rid: recipe._id }).populate('uid');
+
+    res.render('recipe', { 
+      recipe,
+      creator: recipeUser ? recipeUser.uid : null 
+    });
   } catch (err) {
-    console.error('Error unliking recipe:', err);
-    req.flash('error_msg', 'Error unliking recipe. Please try again.');
-    res.redirect(`/recipes/${id}`);
+    console.error(err);
+    req.flash('error', 'Error loading recipe');
+    res.redirect('/');
   }
 });
+
+module.exports = router;

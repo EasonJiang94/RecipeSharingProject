@@ -12,10 +12,10 @@ const { ensureAuthenticated } = require('../config/auth');
 router.get('/', async (req, res) => {
   try {
     // Find user profile
-    const profile = await Profile.findOne({ uid: req.session.userId });
+    const profile = await Profile.findOne({ uid: req.user._id });
     
     // Find user's recipes
-    const recipes = await Recipe.find({ uid: req.session.userId });
+    const recipes = await Recipe.find({ uid: req.user._id });
     
     // Get user's comments with populated recipe information
 const comments = await Comment.find({ uid: req.user._id })

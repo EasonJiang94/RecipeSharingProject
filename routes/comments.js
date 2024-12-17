@@ -61,6 +61,34 @@ router.post('/:recipeId', ensureAuthenticated, async (req, res) => {
     });
   }
 });
+// get comments
+router.get('/:recipeId/comments', async (req, res) => {
+  try {
+    const comments = await Comment.find({ rid: req.params.recipeId })
+      .populate({
+        path: 'uid',
+        model: 'Profile', // Make sure this matches your Profile model name
+        select: 'first_name last_name'
+      })
+      .sort({ created_time: -1 });
+
+    const formattedComments = comments.map(comment => ({
+      _id: comment._id,
+      content: comment.content,
+      created_time: comment.created_time,
+      authorName: `${comment.uid.first_name} ${comment.uid.last_name}`,
+      uid: comment.uid._id
+    }));
+
+    res.json(formattedComments);
+  } catch (error) {
+    console.error('Error fetching comments:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error fetching comments' 
+    });
+  }
+});
 
 // Delete comment
 router.delete('/:id', ensureAuthenticated, async (req, res) => {

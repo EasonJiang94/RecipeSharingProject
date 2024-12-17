@@ -1,11 +1,18 @@
+// routes/recipes.js
 const express = require('express');
 const router = express.Router();
 const Recipe = require('../models/Recipe');
 const RecipeUser = require('../models/RecipeUser');
-const Like = require('../models/Like'); // 导入 Like 模型
+const Like = require('../models/Like'); // Import Like model
 const { ensureAuthenticated } = require('../config/auth');
+const multer = require('multer'); // Import Multer
+const path = require('path');
 
-// Add recipe page - must before search by id and category
+// Configure Multer storage to store files in memory
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+// Add recipe page - must be before search by id and category
 router.get('/add', ensureAuthenticated, (req, res) => {
   res.render('add_recipe', {
     errors: [],
@@ -18,9 +25,10 @@ router.get('/add', ensureAuthenticated, (req, res) => {
   });
 });
 
-// Add recipe handling
-router.post('/add', ensureAuthenticated, async (req, res) => {
+// Add recipe handling with Multer middleware
+router.post('/add', ensureAuthenticated, upload.single('photo'), async (req, res) => {
   console.log("request body : ", req.body);
+  console.log("request file : ", req.file); // Log the file for debugging
   const { description, ingredient, instruction, category } = req.body;
   let errors = [];
 
@@ -81,16 +89,16 @@ router.post('/like/:id', ensureAuthenticated, async (req, res) => {
     const recipeId = req.params.id;
     const userId = req.user._id;
 
-    // 检查是否已点赞
+    // Check if already liked
     const existingLike = await Like.findOne({ rid: recipeId, uid: userId });
     if (existingLike) {
       return res.status(400).json({ success: false, message: 'You already liked this recipe.' });
     }
 
-    // 插入新的点赞记录
+    // Insert new like record
     await new Like({ rid: recipeId, uid: userId }).save();
 
-    // 重新计算点赞数
+    // Recalculate like count
     const likeCount = await Like.countDocuments({ rid: recipeId });
 
     res.json({ success: true, likes: likeCount });
@@ -100,7 +108,7 @@ router.post('/like/:id', ensureAuthenticated, async (req, res) => {
   }
 });
 
-// View single recipe - 必须放在 /add 路由之后
+// View single recipe - must be after /add route
 router.get('/:id', async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id);
@@ -109,13 +117,13 @@ router.get('/:id', async (req, res) => {
       return res.redirect('/');
     }
 
-    // 统计点赞数
+    // Count likes
     const likeCount = await Like.countDocuments({ rid: recipe._id });
 
     const recipeUser = await RecipeUser.findOne({ rid: recipe._id }).populate('uid');
 
     res.render('recipe', { 
-      recipe: { ...recipe._doc, likes: likeCount }, // 将点赞数传递给前端
+      recipe: { ...recipe._doc, likes: likeCount }, // Pass like count to frontend
       creator: recipeUser ? recipeUser.uid : null 
     });
   } catch (err) {

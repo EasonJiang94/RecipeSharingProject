@@ -1,36 +1,33 @@
 // routes/profile.js
 const express = require('express');
 const router = express.Router();
+const User = require('../models/User');
+const Profile = require('../models/Profile');
+const Recipe = require('../models/Recipe');
+const Comment = require('../models/Comment');
+const Like = require('../models/Like');
 
 // Profile page route
 router.get('/', async (req, res) => {
     try {
         // 查找用户个人资料
-        const profile = await req.app.locals.db.collection('profile').findOne(
-            { uid: req.session.userId }
-        );
+        const profile = await Profile.findOne({ uid: req.session.userId });
         
         // 查找用户创建的食谱
-        const recipes = await req.app.locals.db.collection('recipes')
-            .find({ uid: req.session.userId })
-            .toArray();
+        const recipes = await Recipe.find({ uid: req.session.userId });
             
         // 查找用户的评论
-        const comments = await req.app.locals.db.collection('comments')
-            .find({ uid: req.session.userId })
-            .sort({ created_time: -1 })
-            .toArray();
+        const comments = await Comment.find({ uid: req.session.userId })
+            .sort({ created_time: -1 });
             
         // 查找用户点赞的内容
-        const likes = await req.app.locals.db.collection('likes')
-            .find({ uid: req.session.userId })
-            .toArray();
+        const likes = await Like.find({ uid: req.session.userId });
 
         res.render('profile', {
-            profile,
-            recipes,
-            comments,
-            likes
+            profile: profile || {},
+            recipes: recipes || [],
+            comments: comments || [],
+            likes: likes || []
         });
     } catch (error) {
         console.error('Error loading profile:', error);
@@ -43,7 +40,7 @@ router.post('/update', async (req, res) => {
     try {
         const { first_name, last_name, introduction } = req.body;
         
-        await req.app.locals.db.collection('profile').updateOne(
+        await Profile.findOneAndUpdate(
             { uid: req.session.userId },
             {
                 $set: {
@@ -52,7 +49,8 @@ router.post('/update', async (req, res) => {
                     introduction,
                     updated_at: new Date()
                 }
-            }
+            },
+            { upsert: true }
         );
 
         res.redirect('/profile');
@@ -65,16 +63,17 @@ router.post('/update', async (req, res) => {
 // Update profile photo
 router.post('/update-photo', async (req, res) => {
     try {
-        const { photo } = req.body;  // Assuming photo is sent as base64 string
+        const { photo } = req.body;
 
-        await req.app.locals.db.collection('profile').updateOne(
+        await Profile.findOneAndUpdate(
             { uid: req.session.userId },
             {
                 $set: {
                     photo,
                     updated_at: new Date()
                 }
-            }
+            },
+            { upsert: true }
         );
 
         res.redirect('/profile');
@@ -87,7 +86,7 @@ router.post('/update-photo', async (req, res) => {
 // Delete recipe
 router.post('/delete-recipe/:id', async (req, res) => {
     try {
-        await req.app.locals.db.collection('recipes').deleteOne({
+        await Recipe.deleteOne({
             _id: req.params.id,
             uid: req.session.userId
         });
@@ -102,7 +101,7 @@ router.post('/delete-recipe/:id', async (req, res) => {
 // Delete comment
 router.post('/delete-comment/:id', async (req, res) => {
     try {
-        await req.app.locals.db.collection('comments').deleteOne({
+        await Comment.deleteOne({
             _id: req.params.id,
             uid: req.session.userId
         });

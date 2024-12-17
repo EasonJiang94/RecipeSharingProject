@@ -3,17 +3,33 @@ const express = require('express');
 const router = express.Router();
 const Recipe = require('../models/Recipe');
 const User = require('../models/User');
+const Profile = require('../models/Profile');
 
-// 主页
+// main page
 router.get('/', async (req, res) => {
   try {
     const dailyRecipe = await Recipe.aggregate([{ $sample: { size: 1 } }]);
     const hotRecipes = await Recipe.find().sort({ likes: -1 }).limit(3);
-    const topCooks = await User.find().populate('profile').sort({ /* 根据你定义的条件 */ }).limit(3);
+    // get user list
+    const users = await User.find().limit(3);
+    // get user profile
+    const profiles = await Profile.find({
+      uid: { $in: users.map(user => user._id) }
+    });
+
+    // combine search
+    const topCooks = users.map(user => {
+      const profile = profiles.find(p => p.uid.toString() === user._id.toString());
+      return {
+        ...user.toObject(),
+        profile: profile || {}
+      };
+    });
+
     res.render('index', {
-      dailyRecipe: dailyRecipe[0],
-      hotRecipes: hotRecipes,
-      topCooks: topCooks,
+      dailyRecipe: dailyRecipe[0] || null,
+      hotRecipes: hotRecipes || [],
+      topCooks: topCooks || [],
     });
   } catch (err) {
     console.error(err);
@@ -21,7 +37,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// 搜索结果页面
+// search result page
 router.get('/search', async (req, res) => {
   const query = req.query.q;
   try {

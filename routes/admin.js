@@ -5,7 +5,7 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const { ensureAdmin } = require('../config/auth');
 
-// 管理员首页
+// admin page
 router.get('/', ensureAdmin, async (req, res) => {
   try {
     const users = await User.find().populate('profile');
@@ -16,15 +16,15 @@ router.get('/', ensureAdmin, async (req, res) => {
   }
 });
 
-// 删除用户
+// delete user
 router.post('/delete/:id', ensureAdmin, async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);
-    req.flash('success_msg', '用户已删除');
+    req.flash('success_msg', 'User deleted');
     res.redirect('/admin');
   } catch (err) {
     console.error(err);
-    req.flash('error_msg', '删除用户时发生错误');
+    req.flash('error_msg', 'Error deleting');
     res.redirect('/admin');
   }
 });
@@ -38,12 +38,12 @@ router.post('/reset-password/:id', ensureAdmin, async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(newPassword, salt);
       await user.save();
-      req.flash('success_msg', '密码已重置');
+      req.flash('success_msg', 'password reseted');
     }
     res.redirect('/admin');
   } catch (err) {
     console.error(err);
-    req.flash('error_msg', '重置密码时发生错误');
+    req.flash('error_msg', 'error reseting password');
     res.redirect('/admin');
   }
 });

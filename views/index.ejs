@@ -146,7 +146,7 @@
               <% } else if (cook.profile.photo) { %>
                 <img src="data:image/jpeg;base64,<%= cook.profile.photo %>" class="card-img-top" alt="Chef Avatar">
               <% } else { %>
-                <img src="/images/default-avatar.png" class="card-img-top" alt="Default Avatar">
+                <img src="https://cdn.glitch.global/40caaa32-7609-49ce-895e-9832535559ab/chef.jpeg?v=1734429966680" class="card-img-top" alt="Default Avatar">
               <% } %>
               <div class="card-body">
                 <h5 class="card-title"><%= cook.profile.first_name %> <%= cook.profile.last_name %></h5>
@@ -182,7 +182,7 @@
           });
 
           const data = await response.json();
-
+          console.log("like response : ", response)
           if (data.success) {
             // Update like count
             const likeCountSpan = button.parentElement.querySelector('.like-count');

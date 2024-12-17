@@ -10,7 +10,19 @@ const path = require('path');
 
 // Configure Multer storage to store files in memory
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({ 
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png|gif/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    if (mimetype && extname) {
+      return cb(null, true);
+    }
+    cb(new Error('Only images are allowed'));
+  },
+  limits: { fileSize: 5 * 1024 * 1024 } // 5 MB limit
+});
 
 // Add recipe page - must be before search by id and category
 router.get('/add', ensureAuthenticated, (req, res) => {
@@ -113,6 +125,7 @@ router.post('/like/:id', ensureAuthenticated, async (req, res) => {
 });
 
 // View single recipe - must be after /add route
+// View single recipe - must be after /add route
 router.get('/:id', async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id);
@@ -126,9 +139,13 @@ router.get('/:id', async (req, res) => {
 
     const recipeUser = await RecipeUser.findOne({ rid: recipe._id }).populate('uid');
 
+    // Set currentCategory to the recipe's category
+    const currentCategory = recipe.category || 'all';
+
     res.render('recipe', { 
       recipe: { ...recipe._doc, likes: likeCount }, // Pass like count to frontend
-      creator: recipeUser ? recipeUser.uid : null 
+      creator: recipeUser ? recipeUser.uid : null,
+      currentCategory // Pass currentCategory to the template
     });
   } catch (err) {
     console.error(err);
@@ -136,5 +153,6 @@ router.get('/:id', async (req, res) => {
     res.redirect('/');
   }
 });
+
 
 module.exports = router;

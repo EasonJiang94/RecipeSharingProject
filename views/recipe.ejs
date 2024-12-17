@@ -131,53 +131,55 @@
 <!-- scripts -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const commentForm = document.getElementById('comment-form');
-    if (commentForm) {
-      commentForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const content = document.getElementById('comment-content').value;
-        
-        try {
-          const response = await fetch('/comments/<%= recipe._id %>', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ content })
-          });
+  const commentForm = document.getElementById('comment-form');
+  if (commentForm) {
+    commentForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const content = document.getElementById('comment-content').value;
+      
+      try {
+        const response = await fetch('/comments/<%= recipe._id %>', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ content })
+        });
 
-          const data = await response.json();
-          
-          if (data.success) {
-            // Add new comment to the list
-            const commentsList = document.getElementById('comments-list');
-            const commentHtml = `
-              <div class="card mb-3" id="comment-${data.comment._id}">
-                <div class="card-body">
-                  <h6 class="card-subtitle mb-2 text-muted">
-                    ${data.comment.user.first_name} ${data.comment.user.last_name}
-                  </h6>
-                  <p class="card-text">${data.comment.content}</p>
-                  <small class="text-muted">Just now</small>
-                  <button class="btn btn-sm btn-danger float-end delete-comment" 
-                          data-comment-id="${data.comment._id}">
-                    Delete
-                  </button>
-                </div>
+        const data = await response.json();
+        
+        if (data.success) {
+          // Add new comment to the list
+          const commentsList = document.getElementById('comments-list');
+          const commentHtml = `
+            <div class="card mb-3" id="comment-${data.comment._id}">
+              <div class="card-body">
+                <h6 class="card-subtitle mb-2">
+                  ${data.comment.authorName}
+                  <span class="text-muted"> • 
+                    ${new Date(data.comment.created_time).toLocaleDateString()}
+                  </span>
+                </h6>
+                <p class="card-text">${data.comment.content}</p>
+                <button class="btn btn-sm btn-danger float-end delete-comment" 
+                        data-comment-id="${data.comment._id}">
+                  Delete
+                </button>
               </div>
-            `;
-            commentsList.insertAdjacentHTML('afterbegin', commentHtml);
-            commentForm.reset();
-          } else {
-            alert(data.message || 'Error posting comment');
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          alert('Error posting comment');
+            </div>
+          `;
+          commentsList.insertAdjacentHTML('afterbegin', commentHtml);
+          commentForm.reset();
+        } else {
+          alert(data.message || 'Error posting comment');
         }
-      });
-    }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error posting comment');
+      }
+    });
+  }
 
     // Delete comment functionality
     document.addEventListener('click', async function(e) {

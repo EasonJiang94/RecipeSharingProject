@@ -125,7 +125,6 @@ router.post('/like/:id', ensureAuthenticated, async (req, res) => {
 });
 
 // View single recipe - must be after /add route
-// View single recipe - must be after /add route
 router.get('/:id', async (req, res) => {
   try {
     const recipe = await Recipe.findById(req.params.id);
@@ -137,15 +136,26 @@ router.get('/:id', async (req, res) => {
     // Count likes
     const likeCount = await Like.countDocuments({ rid: recipe._id });
 
+    // Find the user who created the recipe
     const recipeUser = await RecipeUser.findOne({ rid: recipe._id }).populate('uid');
 
-    // Set currentCategory to the recipe's category
+    // Determine if the current user has liked this recipe
+    let hasLiked = false;
+    if (req.user) {
+      const existingLike = await Like.findOne({ rid: recipe._id, uid: req.user._id });
+      if (existingLike) {
+        hasLiked = true;
+      }
+    }
+
+    // Set currentCategory to the recipe's category or default to 'all'
     const currentCategory = recipe.category || 'all';
 
     res.render('recipe', { 
       recipe: { ...recipe._doc, likes: likeCount }, // Pass like count to frontend
       creator: recipeUser ? recipeUser.uid : null,
-      currentCategory // Pass currentCategory to the template
+      currentCategory, // Pass currentCategory to the template
+      hasLiked // Pass hasLiked to the template
     });
   } catch (err) {
     console.error(err);
@@ -155,12 +165,13 @@ router.get('/:id', async (req, res) => {
 });
 
 // Unlike recipe handling
+// Unlike recipe handling
 router.post('/unlike/:id', ensureAuthenticated, async (req, res) => {
   try {
     const recipeId = req.params.id;
     const userId = req.user._id;
 
-    // Check if the like exists
+    // Find the existing like
     const existingLike = await Like.findOne({ rid: recipeId, uid: userId });
     if (!existingLike) {
       return res.status(400).json({ success: false, message: 'You have not liked this recipe.' });
@@ -173,13 +184,6 @@ router.post('/unlike/:id', ensureAuthenticated, async (req, res) => {
     const updatedRecipe = await Recipe.findByIdAndUpdate(
       recipeId,
       { $inc: { likes: -1 } },
-      { new: true }
-    );
-
-    // Remove the recipe from the user's likedRecipes array
-    await User.findByIdAndUpdate(
-      userId,
-      { $pull: { likedRecipes: recipeId } },
       { new: true }
     );
 

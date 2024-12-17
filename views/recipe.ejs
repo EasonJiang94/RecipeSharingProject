@@ -19,7 +19,7 @@
     <% } else if (recipe.photo) { %>
       <img src="data:image/jpeg;base64,<%= recipe.photo %>" class="card-img-top" alt="Recipe Image">
     <% } else { %>
-      <img src="/images/default-recipe.png" class="card-img-top" alt="Default Recipe Image">
+      <img src="https://cdn.glitch.global/40caaa32-7609-49ce-895e-9832535559ab/FOOD.jpg?v=1734423437576" class="card-img-top" alt="Default Recipe Image">
     <% } %>
     <div class="card-body">
       <!-- Recipe Description -->
@@ -41,9 +41,13 @@
       <p>Likes: <span id="like-count"><%= recipe.likes || 0 %></span></p>
 
       <!-- Like Button -->
-      <button id="like-btn" class="btn btn-primary" <%= user && user.likedRecipes.includes(recipe._id) ? 'disabled' : '' %>>
-        <%= user && user.likedRecipes.includes(recipe._id) ? 'Liked' : 'Like' %>
-      </button>
+      <% if (user) { %>
+        <button id="like-btn" class="btn btn-primary" <%= hasLiked ? 'disabled' : '' %>>
+          <%= hasLiked ? 'Liked' : 'Like' %>
+        </button>
+      <% } else { %>
+        <p><a href="/users/login">Log in</a> to like this recipe.</p>
+      <% } %>
     </div>
   </div>
 
@@ -66,27 +70,29 @@
 
 <!-- Like Button Script -->
 <script>
-  document.getElementById('like-btn').addEventListener('click', async () => {
-    try {
-      // Send like request
-      const response = await fetch('/recipes/like/<%= recipe._id %>', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
+  <% if (user) { %>
+    document.getElementById('like-btn').addEventListener('click', async () => {
+      try {
+        // Send like request
+        const response = await fetch('/recipes/like/<%= recipe._id %>', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (data.success) {
-        // Update like count
-        document.getElementById('like-count').innerText = data.likes;
-        document.getElementById('like-btn').innerText = 'Liked';
-        document.getElementById('like-btn').disabled = true;
-      } else {
-        alert(data.message || 'Unable to like this recipe.');
+        if (data.success) {
+          // Update like count
+          document.getElementById('like-count').innerText = data.likes;
+          document.getElementById('like-btn').innerText = 'Liked';
+          document.getElementById('like-btn').disabled = true;
+        } else {
+          alert(data.message || 'Unable to like this recipe.');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while liking the recipe.');
       }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred while liking the recipe.');
-    }
-  });
+    });
+  <% } %>
 </script>

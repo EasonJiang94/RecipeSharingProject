@@ -2,13 +2,12 @@
 <%- include('partials/header') %>
 <link rel="stylesheet" href="/css/styles.css">
 
-<!-- Search and Add Recipe Bar -->
+<!-- Search and add recipe bar -->
 <div class="row mb-4">
   <div class="col-md-8">
     <form action="/search" method="GET">
       <div class="input-group">
         <input type="text" class="form-control" name="q" placeholder="Search recipes..." required>
-        <input type="hidden" name="category" value="<%= currentCategory %>">
         <div class="input-group-append">
           <button class="btn btn-primary" type="submit">Search</button>
         </div>
@@ -26,7 +25,7 @@
 <div class="mb-4">
   <nav class="nav nav-pills">
     <a class="nav-link <%= currentCategory === 'all' ? 'active' : '' %>" 
-       href="/">All</a>
+       href="/?category=all">All</a>
     <a class="nav-link <%= currentCategory === 'breakfast' ? 'active' : '' %>" 
        href="/?category=breakfast">Breakfast</a>
     <a class="nav-link <%= currentCategory === 'lunch' ? 'active' : '' %>" 
@@ -38,7 +37,7 @@
   </nav>
 </div>
 
-<% if (showCategoryOnly) { %>
+<% if (currentCategory && currentCategory !== 'all') { %>
   <!-- Category Recipes List -->
   <div class="mb-4">
     <h3><%= currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1) %> Recipes</h3>
@@ -52,9 +51,6 @@
                 <h5 class="card-title">
                   <a href="/recipes/<%= recipe._id %>"><%= recipe.description %></a>
                 </h5>
-                <p class="card-text">
-                  <small class="text-muted">Ingredients: <%= recipe.ingredient.join(', ') %></small>
-                </p>
                 <p class="card-text">Likes: <%= recipe.likes %></p>
                 <a href="/recipes/<%= recipe._id %>" class="btn btn-sm btn-primary">View Recipe</a>
               </div>
@@ -72,7 +68,7 @@
   <!-- Daily Recipe -->
   <div class="mb-4">
     <h3>Daily Recipe</h3>
-    <% if (dailyRecipe) { %>
+    <% if (typeof dailyRecipe !== 'undefined' && dailyRecipe) { %>
       <div class="card mb-3" style="max-width: 540px;">
         <div class="row no-gutters">
           <div class="col-md-4">
@@ -83,11 +79,7 @@
               <h5 class="card-title">
                 <a href="/recipes/<%= dailyRecipe._id %>"><%= dailyRecipe.description %></a>
               </h5>
-              <p class="card-text">
-                Category: <%= dailyRecipe.category %>
-                <br>
-                Likes: <%= dailyRecipe.likes %>
-              </p>
+              <p class="card-text">Likes: <%= dailyRecipe.likes %></p>
               <a href="/recipes/<%= dailyRecipe._id %>" class="btn btn-sm btn-primary">View Recipe</a>
             </div>
           </div>
@@ -103,23 +95,21 @@
   <div class="mb-4">
     <h3>Hot Recipes</h3>
     <div class="row">
-      <% hotRecipes.forEach(recipe => { %>
-        <div class="col-md-4">
-          <div class="card mb-3">
-            <img src="<%= recipe.photo %>" class="card-img-top" alt="Hot Recipe">
-            <div class="card-body">
-              <h5 class="card-title">
-                <a href="/recipes/<%= recipe._id %>"><%= recipe.description %></a>
-              </h5>
-              <p class="card-text">
-                Category: <%= recipe.category %>
-                <br>
-                Likes: <%= recipe.likes %>
-              </p>
+      <% if (typeof hotRecipes !== 'undefined' && hotRecipes.length > 0) { %>
+        <% hotRecipes.forEach(recipe => { %>
+          <div class="col-md-4">
+            <div class="card mb-3">
+              <img src="<%= recipe.photo %>" class="card-img-top" alt="Hot Recipe">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <a href="/recipes/<%= recipe._id %>"><%= recipe.description %></a>
+                </h5>
+                <p class="card-text">Likes: <%= recipe.likes %></p>
+              </div>
             </div>
           </div>
-        </div>
-      <% }) %>
+        <% }) %>
+      <% } %>
     </div>
   </div>
 
@@ -127,26 +117,21 @@
   <div class="mb-4">
     <h3>Top Cooks</h3>
     <div class="row">
-      <% topCooks.forEach(cook => { %>
-        <div class="col-md-4">
-          <div class="card mb-3">
-            <img src="<%= cook.profile.photo || '/images/default-avatar.png' %>" class="card-img-top" alt="Chef Avatar">
-            <div class="card-body">
-              <h5 class="card-title"><%= cook.profile.first_name %> <%= cook.profile.last_name %></h5>
-              <p class="card-text">Likes: <!-- Add data as needed --></p>
+      <% if (typeof topCooks !== 'undefined' && topCooks.length > 0) { %>
+        <% topCooks.forEach(cook => { %>
+          <div class="col-md-4">
+            <div class="card mb-3">
+              <img src="<%= cook.profile.photo || '/images/default-avatar.png' %>" class="card-img-top" alt="Chef Avatar">
+              <div class="card-body">
+                <h5 class="card-title"><%= cook.profile.first_name %> <%= cook.profile.last_name %></h5>
+                <p class="card-text">Likes: <!-- Add data as needed --></p>
+              </div>
             </div>
           </div>
-        </div>
-      <% }) %>
+        <% }) %>
+      <% } %>
     </div>
   </div>
 <% } %>
-
-<!-- Add this script for refresh button functionality -->
-<script>
-document.getElementById('refresh-daily')?.addEventListener('click', () => {
-  window.location.reload();
-});
-</script>
 
 <%- include('partials/footer') %>

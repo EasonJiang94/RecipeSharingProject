@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 const Recipe = require('../models/Recipe');
 const RecipeUser = require('../models/RecipeUser');
+const Comment = require('../models/Comment');
 const Like = require('../models/Like'); // Import Like model
 const { ensureAuthenticated } = require('../config/auth');
 const multer = require('multer'); // Import Multer
@@ -133,11 +134,14 @@ router.get('/:id', async (req, res) => {
       return res.redirect('/');
     }
 
+        // Get comments for this recipe
+    const comments = await Comment.find({ rid: recipe._id }).populate('uid', 'first_name last_name').sort({ created_time: -1 });
     // Count likes
     const likeCount = await Like.countDocuments({ rid: recipe._id });
 
     // Find the user who created the recipe
     const recipeUser = await RecipeUser.findOne({ rid: recipe._id }).populate('uid');
+    
 
     // Determine if the current user has liked this recipe
     let hasLiked = false;

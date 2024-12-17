@@ -60,7 +60,7 @@ app.use('/users', require('./routes/users'));
 app.use('/recipes', require('./routes/recipes'));
 app.use('/admin', require('./routes/admin'));
 app.use('/profile', require('./routes/profile'));
-
+app.use('/comments', require('./routes/comments'));
 // Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

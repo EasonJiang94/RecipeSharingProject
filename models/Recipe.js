@@ -14,6 +14,12 @@ const RecipeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+    category: {
+    type: String,
+    required: true,
+    enum: ['breakfast', 'lunch', 'dinner', 'dessert'],  // 限制分类只能是这四个值
+    default: 'dinner'
+  },
   photo: {
     type: String, // Base64 encoded image
   },

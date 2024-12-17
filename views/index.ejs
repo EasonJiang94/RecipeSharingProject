@@ -2,9 +2,9 @@
 <%- include('partials/header') %>
 <link rel="stylesheet" href="/css/styles.css">
 
-<!-- Search Bar -->
+<!-- Search  add recipe bar -->
 <div class="row mb-4">
-  <div class="col-md-8 offset-md-2">
+  <div class="col-md-8">
     <form action="/search" method="GET">
       <div class="input-group">
         <input type="text" class="form-control" name="q" placeholder="Search recipes..." required>
@@ -13,6 +13,11 @@
         </div>
       </div>
     </form>
+  </div>
+  <div class="col-md-4 text-right">
+    <a href="/recipes/add" class="btn btn-success">
+      <i class="fas fa-plus"></i> Add New Recipe
+    </a>
   </div>
 </div>
 

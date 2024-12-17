@@ -11,10 +11,11 @@ router.get('/add', ensureAuthenticated, (req, res) => {
 
 // Add new recipe handling
 router.post('/add', ensureAuthenticated, async (req, res) => {
-  const { description, ingredient, instruction } = req.body;
+  const { description, ingredient, instruction, category } = req.body;
   let errors = [];
 
-  if (!description || !ingredient || !instruction) {
+  // Validation
+  if (!description || !ingredient || !instruction || !category) {
     errors.push({ msg: 'Please fill in all fields' });
   }
 
@@ -24,6 +25,7 @@ router.post('/add', ensureAuthenticated, async (req, res) => {
       description,
       ingredient,
       instruction,
+      category
     });
   } else {
     try {
@@ -31,8 +33,14 @@ router.post('/add', ensureAuthenticated, async (req, res) => {
         description,
         ingredient: ingredient.split(',').map(item => item.trim()),
         instruction,
-        // photo: handle image upload
+        category,
+        uid: req.user._id // Add user reference
       });
+
+      if (req.file) {
+        newRecipe.photo = req.file.buffer.toString('base64');
+      }
+
       await newRecipe.save();
       req.flash('success_msg', 'Recipe added successfully');
       res.redirect('/');
@@ -43,6 +51,7 @@ router.post('/add', ensureAuthenticated, async (req, res) => {
         description,
         ingredient,
         instruction,
+        category
       });
     }
   }
@@ -51,11 +60,16 @@ router.post('/add', ensureAuthenticated, async (req, res) => {
 // View single recipe
 router.get('/:id', async (req, res) => {
   try {
-    const recipe = await Recipe.findById(req.params.id);
-    // You can populate comments, likes, etc., here
+    const recipe = await Recipe.findById(req.params.id)
+      .populate('uid', 'username');
+    if (!recipe) {
+      req.flash('error_msg', 'Recipe not found');
+      return res.redirect('/');
+    }
     res.render('recipe', { recipe });
   } catch (err) {
     console.error(err);
+    req.flash('error_msg', 'Error loading recipe');
     res.redirect('/');
   }
 });

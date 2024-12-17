@@ -4,6 +4,7 @@ const router = express.Router();
 const Recipe = require('../models/Recipe');
 const RecipeUser = require('../models/RecipeUser');
 const Comment = require('../models/Comment');
+const Profile = require('../models/Profile');
 const Like = require('../models/Like'); // Import Like model
 const { ensureAuthenticated } = require('../config/auth');
 const multer = require('multer'); // Import Multer
@@ -136,9 +137,22 @@ router.get('/:id', async (req, res) => {
 
         // Get comments for this recipe
     const comments = await Comment.find({ rid: recipe._id })
-      .populate('uid', 'first_name last_name')
-      .sort({ created_time: -1 })
-      .lean(); 
+      .sort({ created_time: -1 });
+
+    // Get profiles for all comment authors
+    const profiles = await Profile.find({
+      uid: { $in: comments.map(comment => comment.uid) }
+    });
+
+    // Map profiles to comments
+    const commentsWithProfiles = comments.map(comment => {
+      const profile = profiles.find(p => p.uid.toString() === comment.uid.toString());
+      return {
+        ...comment.toObject(),
+        profile: profile || null
+      };
+    });
+    
     // Count likes
     const likeCount = await Like.countDocuments({ rid: recipe._id });
 

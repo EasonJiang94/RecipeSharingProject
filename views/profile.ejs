@@ -140,21 +140,33 @@
                 <!-- My Comments Tab -->
                 <div class="tab-pane fade" id="comments" role="tabpanel">
                     <% if (comments && comments.length > 0) { %>
-                        <div class="list-group">
-                            <% comments.forEach(comment => { %>
-                                <div class="list-group-item">
-                                    <h6 class="mb-1">On recipe: <%= comment.recipe.title %></h6>
-                                    <p class="mb-1"><%= comment.content %></p>
-                                    <small class="text-muted">
-                                        <%= new Date(comment.created_time).toLocaleDateString() %>
-                                    </small>
-                                </div>
-                            <% }); %>
-                        </div>
-                    <% } else { %>
-                        <p class="text-muted">You haven't made any comments yet.</p>
-                    <% } %>
+                      <div class="list-group">
+                        <% comments.forEach(comment => { %>
+                  <div class="list-group-item">
+                    <h6 class="mb-1">
+                        On recipe: 
+                        <% if (comment.rid && comment.rid.description) { %>
+                            <%= comment.rid.description %>
+                        <% } else { %>
+                            Deleted Recipe
+                        <% } %>
+                    </h6>
+                    <p class="mb-1"><%= comment.content %></p>
+                    <small class="text-muted">
+                        <%= new Date(comment.created_time).toLocaleDateString() %>
+                    </small>
+                    <!-- Add delete button for own comments -->
+                    <button class="btn btn-sm btn-danger float-end delete-comment" 
+                            data-comment-id="<%= comment._id %>">
+                        Delete
+                    </button>
                 </div>
+            <% }); %>
+        </div>
+    <% } else { %>
+        <p class="text-muted">You haven't made any comments yet.</p>
+    <% } %>
+</div>
 
                 <!-- My Likes Tab -->
                 <div class="tab-pane fade" id="likes" role="tabpanel">

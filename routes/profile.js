@@ -18,13 +18,9 @@ router.get('/', async (req, res) => {
     const recipes = await Recipe.find({ uid: req.session.userId });
     
     // Get user's comments with populated recipe information
-    const comments = await Comment.find({ uid: req.session.userId })
-      .populate({
-        path: 'rid',
-        select: 'description category',  /
-        model: 'Recipe'
-      })
-      .sort({ created_time: -1 });
+const comments = await Comment.find({ uid: req.user._id })
+    .populate('rid', 'description') 
+    .sort({ created_time: -1 });
 
     // Transform comments to match template expectations
     const transformedComments = comments.map(comment => ({

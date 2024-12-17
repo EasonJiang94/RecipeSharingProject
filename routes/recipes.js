@@ -135,7 +135,10 @@ router.get('/:id', async (req, res) => {
     }
 
         // Get comments for this recipe
-    const comments = await Comment.find({ rid: recipe._id }).populate('uid', 'first_name last_name').sort({ created_time: -1 });
+    const comments = await Comment.find({ rid: recipe._id })
+      .populate('uid', 'first_name last_name')
+      .sort({ created_time: -1 })
+      .lean(); 
     // Count likes
     const likeCount = await Like.countDocuments({ rid: recipe._id });
 
@@ -159,7 +162,9 @@ router.get('/:id', async (req, res) => {
       recipe: { ...recipe._doc, likes: likeCount }, 
       creator: recipeUser ? recipeUser.uid : null,
       currentCategory,
-      hasLiked 
+      hasLiked,
+      comments: comments || [],
+      user: req.user || null 
     });
   } catch (err) {
     console.error(err);

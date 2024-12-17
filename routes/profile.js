@@ -4,40 +4,52 @@ const router = express.Router();
 const Profile = require('../models/Profile');
 const RecipeUser = require('../models/RecipeUser');
 const Comment = require('../models/Comment');
+const Recipe = require('../models/Recipe');
 const Like = require('../models/Like');
 const { ensureAuthenticated } = require('../config/auth');
 
 // Profile page route
-router.get('/', ensureAuthenticated, async (req, res) => {
-    console.log("Authenticated User ID:", req.user._id);
-    try {
-        const userId = req.user._id;
+router.get('/', async (req, res) => {
+  try {
+    // Find user profile
+    const profile = await Profile.findOne({ uid: req.session.userId });
+    
+    // Find user's recipes
+    const recipes = await Recipe.find({ uid: req.session.userId });
+    
+    // Get user's comments with populated recipe information
+    const comments = await Comment.find({ uid: req.session.userId })
+      .populate({
+        path: 'rid',
+        select: 'description category',  /
+        model: 'Recipe'
+      })
+      .sort({ created_time: -1 });
 
-        // Find profile for user
-        const profile = await Profile.findOne({ uid: userId });
+    // Transform comments to match template expectations
+    const transformedComments = comments.map(comment => ({
+      _id: comment._id,
+      content: comment.content,
+      created_time: comment.created_time,
+      recipe: {
+        title: comment.rid ? comment.rid.description : 'Deleted Recipe',
+        category: comment.rid ? comment.rid.category : ''
+      }
+    }));
 
-        // Fetch recipes using RecipeUser model
-        const recipeUserEntries = await RecipeUser.find({ uid: userId }).populate('rid');
-        const recipes = recipeUserEntries.map(entry => entry.rid);
-        console.log("User's Recipes:", recipes);
-
-        // Related comments
-        const comments = await Comment.find({ uid: userId })
-            .sort({ created_time: -1 });
-
-        // Related likes
-        const likes = await Like.find({ uid: userId });
-
-        res.render('profile', {
-            profile: profile || {},
-            recipes: recipes || [],
-            comments: comments || [],
-            likes: likes || []
-        });
-    } catch (error) {
-        console.error('Error loading profile:', error);
-        res.status(500).send('Error loading profile');
-    }
+    res.render('profile', {
+      profile: profile || {},
+      recipes: recipes || [],
+      comments: transformedComments || [],
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.render('profile', { 
+      profile: {},
+      recipes: [],
+      comments: [],
+    });
+  }
 });
 
 // Update profile information

@@ -1,8 +1,175 @@
 <!-- views/profile.ejs -->
 <%- include('partials/header') %>
 
-<h2>个人中心</h2>
-<!-- 显示和编辑用户个人资料 -->
-<!-- 需要根据需求添加内容 -->
+<div class="container mt-5">
+    <div class="row">
+        <!-- Profile Picture Section -->
+        <div class="col-md-4 text-center">
+            <div class="mb-4">
+                <img src="<%= user.photo || '/images/default-avatar.png' %>" 
+                     alt="Profile Picture" 
+                     class="rounded-circle img-thumbnail"
+                     style="width: 200px; height: 200px; object-fit: cover;">
+            </div>
+            <button class="btn btn-outline-primary mb-3" data-bs-toggle="modal" data-bs-target="#photoModal">
+                Update Profile Picture
+            </button>
+        </div>
+
+        <!-- Profile Information Section -->
+        <div class="col-md-8">
+            <h3 class="mb-4">Profile Information</h3>
+            <form action="/profile/update" method="POST" class="needs-validation" novalidate>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="firstName" class="form-label">First Name</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="firstName" 
+                               name="first_name"
+                               value="<%= user.first_name %>"
+                               required>
+                        <div class="invalid-feedback">
+                            First name is required
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="lastName" class="form-label">Last Name</label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="lastName" 
+                               name="last_name"
+                               value="<%= user.last_name %>"
+                               required>
+                        <div class="invalid-feedback">
+                            Last name is required
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="introduction" class="form-label">Introduction</label>
+                    <textarea class="form-control" 
+                              id="introduction" 
+                              name="introduction" 
+                              rows="4"><%= user.introduction %></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Activity Section -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="mb-4">My Activities</h3>
+            <ul class="nav nav-tabs" id="activityTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="recipes-tab" data-bs-toggle="tab" href="#recipes" role="tab">
+                        My Recipes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="comments-tab" data-bs-toggle="tab" href="#comments" role="tab">
+                        My Comments
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="likes-tab" data-bs-toggle="tab" href="#likes" role="tab">
+                        My Likes
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content mt-3" id="activityTabContent">
+                <!-- My Recipes Tab -->
+                <div class="tab-pane fade show active" id="recipes" role="tabpanel">
+                    <div class="row">
+                        <% if (user.recipes && user.recipes.length > 0) { %>
+                            <% user.recipes.forEach(recipe => { %>
+                                <div class="col-md-4 mb-4">
+                                    <div class="card">
+                                        <img src="<%= recipe.photo %>" class="card-img-top" alt="Recipe Image">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><%= recipe.title %></h5>
+                                            <p class="card-text"><%= recipe.description.substring(0, 100) %>...</p>
+                                            <a href="/recipe/<%= recipe.id %>" class="btn btn-outline-primary">View Recipe</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="col-12">
+                                <p class="text-muted">You haven't created any recipes yet.</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- My Comments Tab -->
+                <div class="tab-pane fade" id="comments" role="tabpanel">
+                    <% if (user.comments && user.comments.length > 0) { %>
+                        <div class="list-group">
+                            <% user.comments.forEach(comment => { %>
+                                <div class="list-group-item">
+                                    <h6 class="mb-1">On recipe: <%= comment.recipe.title %></h6>
+                                    <p class="mb-1"><%= comment.content %></p>
+                                    <small class="text-muted">
+                                        <%= new Date(comment.created_time).toLocaleDateString() %>
+                                    </small>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <p class="text-muted">You haven't made any comments yet.</p>
+                    <% } %>
+                </div>
+
+                <!-- My Likes Tab -->
+                <div class="tab-pane fade" id="likes" role="tabpanel">
+                    <% if (user.likes && user.likes.length > 0) { %>
+                        <div class="row">
+                            <% user.likes.forEach(like => { %>
+                                <div class="col-md-4 mb-4">
+                                    <div class="card">
+                                        <img src="<%= like.recipe.photo %>" class="card-img-top" alt="Recipe Image">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><%= like.recipe.title %></h5>
+                                            <a href="/recipe/<%= like.recipe.id %>" class="btn btn-outline-primary">View Recipe</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <p class="text-muted">You haven't liked any recipes yet.</p>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Photo Upload Modal -->
+<div class="modal fade" id="photoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Profile Picture</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="/profile/update-photo" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="photo" class="form-label">Choose Photo</label>
+                        <input type="file" class="form-control" id="photo" name="photo" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload Photo</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
 <%- include('partials/footer') %>

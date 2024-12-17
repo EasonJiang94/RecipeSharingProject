@@ -45,13 +45,14 @@
               <% } else if (recipe.photo) { %>
                 <img src="data:image/jpeg;base64,<%= recipe.photo %>" class="card-img-top" alt="Recipe Image">
               <% } else { %>
-                <img src="/images/default-recipe.png" class="card-img-top" alt="Default Recipe Image">
+                <img src="https://cdn.glitch.global/40caaa32-7609-49ce-895e-9832535559ab/FOOD.jpg?v=1734423437576" class="card-img-top" alt="Default Recipe Image">
               <% } %>
               <div class="card-body">
                 <h5 class="card-title">
                   <a href="/recipes/<%= recipe._id %>"><%= recipe.description %></a>
                 </h5>
-                <p class="card-text">Likes: <%= recipe.likes %></p>
+                <p class="card-text">Likes: <span class="like-count"><%= recipe.likes %></span></p>
+                <button class="like-btn btn btn-sm btn-primary" data-recipe-id="<%= recipe._id %>">Like</button>
                 <a href="/recipes/<%= recipe._id %>" class="btn btn-sm btn-primary">View Recipe</a>
               </div>
             </div>
@@ -77,7 +78,7 @@
             <% } else if (dailyRecipe.photo) { %>
               <img src="data:image/jpeg;base64,<%= dailyRecipe.photo %>" class="card-img" alt="Daily Recipe">
             <% } else { %>
-              <img src="/images/default-recipe.png" class="card-img" alt="Default Recipe Image">
+              <img src="https://cdn.glitch.global/40caaa32-7609-49ce-895e-9832535559ab/FOOD.jpg?v=1734423437576" class="card-img" alt="Default Recipe Image">
             <% } %>
           </div>
           <div class="col-md-8">
@@ -85,7 +86,8 @@
               <h5 class="card-title">
                 <a href="/recipes/<%= dailyRecipe._id %>"><%= dailyRecipe.description %></a>
               </h5>
-              <p class="card-text">Likes: <%= dailyRecipe.likes %></p>
+              <p class="card-text">Likes: <span class="like-count"><%= dailyRecipe.likes %></span></p>
+              <button class="like-btn btn btn-sm btn-primary" data-recipe-id="<%= dailyRecipe._id %>">Like</button>
               <a href="/recipes/<%= dailyRecipe._id %>" class="btn btn-sm btn-primary">View Recipe</a>
             </div>
           </div>
@@ -110,13 +112,15 @@
               <% } else if (recipe.photo) { %>
                 <img src="data:image/jpeg;base64,<%= recipe.photo %>" class="card-img-top" alt="Hot Recipe">
               <% } else { %>
-                <img src="/images/default-recipe.png" class="card-img-top" alt="Default Recipe Image">
+                <img src="https://cdn.glitch.global/40caaa32-7609-49ce-895e-9832535559ab/FOOD.jpg?v=1734423437576" class="card-img-top" alt="Default Recipe Image">
               <% } %>
               <div class="card-body">
                 <h5 class="card-title">
                   <a href="/recipes/<%= recipe._id %>"><%= recipe.description %></a>
                 </h5>
-                <p class="card-text">Likes: <%= recipe.likes %></p>
+                <p class="card-text">Likes: <span class="like-count"><%= recipe.likes %></span></p>
+                <button class="like-btn btn btn-sm btn-primary" data-recipe-id="<%= recipe._id %>">Like</button>
+                <a href="/recipes/<%= recipe._id %>" class="btn btn-sm btn-primary">View Recipe</a>
               </div>
             </div>
           </div>
@@ -164,27 +168,36 @@
 
 <!-- Like Button Script -->
 <script>
-  document.getElementById('like-btn').addEventListener('click', async () => {
-    try {
-      // Send like request
-      const response = await fetch('/recipes/like/<%= recipe._id %>', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+  document.addEventListener('DOMContentLoaded', () => {
+    const likeButtons = document.querySelectorAll('.like-btn');
+
+    likeButtons.forEach(button => {
+      button.addEventListener('click', async () => {
+        const recipeId = button.getAttribute('data-recipe-id');
+
+        try {
+          const response = await fetch(`/recipes/like/${recipeId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            // Update like count
+            const likeCountSpan = button.parentElement.querySelector('.like-count');
+            likeCountSpan.innerText = data.likes;
+            // Update button state
+            button.innerText = 'Liked';
+            button.disabled = true;
+          } else {
+            alert(data.message || 'Unable to like this recipe.');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('An error occurred while liking the recipe.');
+        }
       });
-
-      const data = await response.json();
-
-      if (data.success) {
-        // Update like count
-        document.getElementById('like-count').innerText = data.likes;
-        document.getElementById('like-btn').innerText = 'Liked';
-        document.getElementById('like-btn').disabled = true;
-      } else {
-        alert(data.message || 'Unable to like this recipe.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred while liking the recipe.');
-    }
+    });
   });
 </script>

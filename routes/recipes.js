@@ -89,7 +89,7 @@ router.post('/like/:id', ensureAuthenticated, async (req, res) => {
     const recipeId = req.params.id;
     const userId = req.user._id;
 
-    // Check if already liked
+    // Check if the user has already liked the recipe
     const existingLike = await Like.findOne({ rid: recipeId, uid: userId });
     if (existingLike) {
       return res.status(400).json({ success: false, message: 'You already liked this recipe.' });
@@ -98,10 +98,14 @@ router.post('/like/:id', ensureAuthenticated, async (req, res) => {
     // Insert new like record
     await new Like({ rid: recipeId, uid: userId }).save();
 
-    // Recalculate like count
-    const likeCount = await Like.countDocuments({ rid: recipeId });
+    // Increment the likes count in the Recipe model
+    const updatedRecipe = await Recipe.findByIdAndUpdate(
+      recipeId,
+      { $inc: { likes: 1 } },
+      { new: true }
+    );
 
-    res.json({ success: true, likes: likeCount });
+    res.json({ success: true, likes: updatedRecipe.likes });
   } catch (err) {
     console.error('Error while liking recipe:', err);
     res.status(500).json({ success: false, message: 'Internal server error.' });

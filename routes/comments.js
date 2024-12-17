@@ -2,6 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const Comment = require('../models/Comment');
+const Recipe = require("../models/Recipe");
+const Profile = require('../models/Profile');
 const { ensureAuthenticated } = require('../config/auth');
 
 router.use(express.json());
@@ -19,14 +21,19 @@ router.post('/:recipeId', ensureAuthenticated, async (req, res) => {
       });
     }
 
-    const content = req.body.content;
-    const rid = req.params.recipeId;
-    const uid = req.user._id;
+    // Get user's profile first
+    const userProfile = await Profile.findOne({ uid: req.user._id });
+    if (!userProfile) {
+      return res.status(400).json({
+        success: false,
+        message: 'User profile not found'
+      });
+    }
 
     const newComment = new Comment({
-      rid,
-      uid,
-      content,
+      rid: req.params.recipeId,
+      uid: req.user._id,
+      content: req.body.content,
       created_time: new Date()
     });
 
@@ -38,13 +45,13 @@ router.post('/:recipeId', ensureAuthenticated, async (req, res) => {
         _id: newComment._id,
         content: newComment.content,
         created_time: newComment.created_time,
+        authorName: `${userProfile.first_name} ${userProfile.last_name}`,
         user: {
-          first_name: req.user.first_name,
-          last_name: req.user.last_name
+          first_name: userProfile.first_name,
+          last_name: userProfile.last_name
         }
       }
     });
-
   } catch (error) {
     console.error('Error adding comment:', error);
     res.status(500).json({ 

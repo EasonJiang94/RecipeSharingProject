@@ -102,22 +102,18 @@
   <% } %>
 
   <!-- Comments List -->
-  <div id="comments-list">
+<div id="comments-list">
   <% if (comments && comments.length > 0) { %>
     <% comments.forEach(comment => { %>
       <div class="card mb-3" id="comment-<%= comment._id %>">
         <div class="card-body">
-          <h6 class="card-subtitle mb-2 text-muted">
-            <% if (comment.profile) { %>
-              <%= comment.profile.first_name %> <%= comment.profile.last_name %>
-            <% } else { %>
-              Anonymous User
-            <% } %>
+          <h6 class="card-subtitle mb-2">
+            <%= comment.authorName || 'Anonymous User' %>
+            <span class="text-muted"> • 
+              <%= new Date(comment.created_time).toLocaleDateString() %>
+            </span>
           </h6>
           <p class="card-text"><%= comment.content %></p>
-          <small class="text-muted">
-            <%= new Date(comment.created_time).toLocaleDateString() %>
-          </small>
           <% if (user && comment.uid.toString() === user._id.toString()) { %>
             <button class="btn btn-sm btn-danger float-end delete-comment" 
                     data-comment-id="<%= comment._id %>">
@@ -130,10 +126,9 @@
   <% } else { %>
     <p class="text-muted">No comments yet. Be the first to comment!</p>
   <% } %>
-  </div>
 </div>
 
-<!-- Add this script at the end of recipe.ejs -->
+<!-- scripts -->
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const commentForm = document.getElementById('comment-form');
@@ -315,93 +310,3 @@
   <% } %>
 </script>
       
-      <!-- comment script -->
-
-  <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const commentForm = document.getElementById('comment-form');
-    if (commentForm) {
-      commentForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const content = document.getElementById('comment-content').value;
-        
-        try {
-          const response = await fetch('/comments/<%= recipe._id %>', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ content })
-          });
-
-          const data = await response.json();
-          
-          if (data.success) {
-            // Add new comment to the list
-            const commentsList = document.getElementById('comments-list');
-            const commentHtml = `
-              <div class="card mb-3" id="comment-${data.comment._id}">
-                <div class="card-body">
-                  <h6 class="card-subtitle mb-2">
-                    ${data.comment.authorName}
-                    <span class="text-muted"> • Just now</span>
-                  </h6>
-                  <p class="card-text">${data.comment.content}</p>
-                  <button class="btn btn-sm btn-danger float-end delete-comment" 
-                          data-comment-id="${data.comment._id}">
-                    Delete
-                  </button>
-                </div>
-              </div>
-            `;
-            
-            // Insert at the beginning of the comments list
-            const firstComment = commentsList.firstChild;
-            if (firstComment) {
-              firstComment.insertAdjacentHTML('beforebegin', commentHtml);
-            } else {
-              commentsList.innerHTML = commentHtml;
-            }
-            
-            commentForm.reset();
-          } else {
-            alert(data.message || 'Error posting comment');
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          alert('Error posting comment');
-        }
-      });
-    }
-
-    // Delete comment functionality - no changes needed here
-    document.addEventListener('click', function(e) {
-      if (e.target.classList.contains('delete-comment')) {
-        handleDeleteComment(e);
-      }
-    });
-  });
-
-  async function handleDeleteComment(e) {
-    if (confirm('Are you sure you want to delete this comment?')) {
-      const commentId = e.target.dataset.commentId;
-      try {
-        const response = await fetch(`/comments/${commentId}`, {
-          method: 'DELETE'
-        });
-
-        const data = await response.json();
-        
-        if (data.success) {
-          document.getElementById(`comment-${commentId}`).remove();
-        } else {
-          alert(data.message || 'Error deleting comment');
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Error deleting comment');
-      }
-    }
-  }
-</script>

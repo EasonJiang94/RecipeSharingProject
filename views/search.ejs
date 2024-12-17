@@ -7,7 +7,13 @@
     <% recipes.forEach(recipe => { %>
       <div class="col-md-4">
         <div class="card mb-3">
-          <img src="<%= recipe.photo %>" class="card-img-top" alt="Recipe">
+          <% if (recipe.photo && /^https?:\/\//.test(recipe.photo)) { %>
+                <img src="<%= recipe.photo %>" class="card-img-top" alt="Recipe Image">
+              <% } else if (recipe.photo) { %>
+                <img src="data:image/jpeg;base64,<%= recipe.photo %>" class="card-img-top" alt="Recipe Image">
+              <% } else { %>
+                <img src="https://cdn.glitch.global/40caaa32-7609-49ce-895e-9832535559ab/FOOD.jpg?v=1734423437576" class="card-img-top" alt="Default Recipe Image">
+              <% } %>
           <div class="card-body">
             <h5 class="card-title"><a href="/recipes/<%= recipe._id %>"><%= recipe.description %></a></h5>
             <p class="card-text">Likes: <%= recipe.likes %></p>

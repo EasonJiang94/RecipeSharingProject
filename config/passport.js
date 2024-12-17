@@ -7,13 +7,13 @@ module.exports = function(passport) {
   passport.use(
     new LocalStrategy({ usernameField: 'account' }, async (account, password, done) => {
       try {
-        // 查找用户 (Find user)
+        // Find user
         const user = await User.findOne({ account: account });
         if (!user) {
           return done(null, false, { message: "User Account does not exit" }); // Account does not exist
         }
 
-        // 验证密码 (Verify password)
+        // Verify password
         const isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
           return done(null, user);

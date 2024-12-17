@@ -18,26 +18,22 @@
     <% if (user) { %>
       <% if (userLiked) { %>
         <!-- 取消点赞按钮 -->
-        <form action="/recipes/<%= recipe._id %>/unlike" method="POST" style="display:inline;">
+        <form action="/recipes/<%= recipe._id %>/unlike" method="POST">
           <button type="submit" class="btn btn-danger">👎 Unlike</button>
         </form>
       <% } else { %>
         <!-- 点赞按钮 -->
-        <form action="/recipes/<%= recipe._id %>/like" method="POST" style="display:inline;">
+        <form action="/recipes/<%= recipe._id %>/like" method="POST">
           <button type="submit" class="btn btn-primary">👍 Like</button>
         </form>
       <% } %>
     <% } else { %>
-      <p><a href="/login">Login</a> to like this recipe.</p>
+      <!-- 未登录用户提示 -->
+      <p>
+        <a href="/users/login" class="btn btn-secondary">Please log in to like this recipe</a>
+      </p>
     <% } %>
   </div>
-</div>
-
-<!-- Comments Section -->
-<div class="comments-section">
-  <h4>Comments</h4>
-  <!-- Display comments -->
-  <% /* Iterate over comments and display */ %>
 </div>
 
 <%- include('partials/footer') %>

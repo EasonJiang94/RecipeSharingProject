@@ -1,27 +1,27 @@
 <!-- views/admin.ejs -->
 <%- include('partials/header') %>
 
-<h2>管理员页面</h2>
+<h2>Admin Page</h2>
 <table class="table table-striped">
   <thead>
     <tr>
-      <th>账户</th>
-      <th>角色</th>
-      <th>操作</th>
+      <th>Account</th>
+      <th>Role</th>
+      <th>Actions</th>
     </tr>
   </thead>
   <tbody>
     <% users.forEach(user => { %>
       <tr>
         <td><%= user.account %></td>
-        <td><%= user.role === 1 ? '管理员' : '普通用户' %></td>
+        <td><%= user.role === 1 ? 'Admin' : 'Regular User' %></td>
         <td>
           <form action="/admin/delete/<%= user._id %>" method="POST" style="display:inline;">
-            <button type="submit" class="btn btn-danger btn-sm">删除</button>
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
           </form>
           <form action="/admin/reset-password/<%= user._id %>" method="POST" style="display:inline;">
-            <input type="password" name="newPassword" placeholder="新密码" required>
-            <button type="submit" class="btn btn-warning btn-sm">重置密码</button>
+            <input type="password" name="newPassword" placeholder="New Password" required>
+            <button type="submit" class="btn btn-warning btn-sm">Reset Password</button>
           </form>
         </td>
       </tr>

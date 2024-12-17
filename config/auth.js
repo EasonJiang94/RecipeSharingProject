@@ -4,14 +4,14 @@ module.exports = {
     if (req.isAuthenticated()) {
       return next();
     }
-    req.flash('error_msg', '请先登录');
+    req.flash('error_msg', 'Please log in first');
     res.redirect('/users/login');
   },
   ensureAdmin: function(req, res, next) {
     if (req.isAuthenticated() && req.user.role === 1) {
       return next();
     }
-    req.flash('error_msg', '无权限访问');
+    req.flash('error_msg', 'No permission to access');
     res.redirect('/');
   }
 };

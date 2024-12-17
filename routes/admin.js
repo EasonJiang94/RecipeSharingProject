@@ -5,7 +5,7 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const { ensureAdmin } = require('../config/auth');
 
-// admin page
+// Admin home page
 router.get('/', ensureAdmin, async (req, res) => {
   try {
     const users = await User.find().populate('profile');
@@ -16,7 +16,7 @@ router.get('/', ensureAdmin, async (req, res) => {
   }
 });
 
-// delete user
+// Delete user
 router.post('/delete/:id', ensureAdmin, async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);
@@ -24,12 +24,12 @@ router.post('/delete/:id', ensureAdmin, async (req, res) => {
     res.redirect('/admin');
   } catch (err) {
     console.error(err);
-    req.flash('error_msg', 'Error deleting');
+    req.flash('error_msg', 'An error occurred while deleting the user');
     res.redirect('/admin');
   }
 });
 
-// 重置用户密码
+// Reset user password
 router.post('/reset-password/:id', ensureAdmin, async (req, res) => {
   const { newPassword } = req.body;
   try {
@@ -38,12 +38,12 @@ router.post('/reset-password/:id', ensureAdmin, async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(newPassword, salt);
       await user.save();
-      req.flash('success_msg', 'password reseted');
+      req.flash('success_msg', 'Password reset successfully');
     }
     res.redirect('/admin');
   } catch (err) {
     console.error(err);
-    req.flash('error_msg', 'error reseting password');
+    req.flash('error_msg', 'An error occurred while resetting the password');
     res.redirect('/admin');
   }
 });

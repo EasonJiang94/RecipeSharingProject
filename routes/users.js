@@ -6,29 +6,29 @@ const passport = require('passport');
 const User = require('../models/User');
 const Profile = require('../models/Profile');
 
-// 注册页面
+// Register page
 router.get('/register', (req, res) => {
   res.render('register');
 });
 
-// 注册处理
+// Register handling
 router.post('/register', async (req, res) => {
   const { account, password, password2, first_name, last_name } = req.body;
   let errors = [];
 
-  // 检查必填字段
+  // Check required fields
   if (!account || !password || !password2 || !first_name || !last_name) {
-    errors.push({ msg: '请填写所有字段' });
+    errors.push({ msg: 'Please fill in all fields' });
   }
 
-  // 检查密码是否匹配
+  // Check if passwords match
   if (password !== password2) {
-    errors.push({ msg: '密码不匹配' });
+    errors.push({ msg: 'Passwords do not match' });
   }
 
-  // 检查密码长度
+  // Check password length
   if (password.length < 6) {
-    errors.push({ msg: '密码长度至少为 6 个字符' });
+    errors.push({ msg: 'Password should be at least 6 characters' });
   }
 
   if (errors.length > 0) {
@@ -44,7 +44,7 @@ router.post('/register', async (req, res) => {
     try {
       const existingUser = await User.findOne({ account: account });
       if (existingUser) {
-        errors.push({ msg: '账户已存在' });
+        errors.push({ msg: 'Account already exists' });
         res.render('register', {
           errors,
           account,
@@ -59,13 +59,13 @@ router.post('/register', async (req, res) => {
           password,
         });
 
-        // 哈希密码
+        // Hash password
         const salt = await bcrypt.genSalt(10);
         newUser.password = await bcrypt.hash(password, salt);
 
         await newUser.save();
 
-        // 创建用户个人资料
+        // Create user profile
         const newProfile = new Profile({
           uid: newUser._id,
           first_name,
@@ -73,13 +73,13 @@ router.post('/register', async (req, res) => {
         });
         await newProfile.save();
 
-        req.flash('success_msg', '注册成功，请登录');
+        req.flash('success_msg', 'Registration successful, please log in');
         res.redirect('/users/login');
       }
     } catch (err) {
       console.error(err);
       res.render('register', {
-        errors: [{ msg: '注册过程中发生错误' }],
+        errors: [{ msg: 'An error occurred during registration' }],
         account,
         password,
         password2,
@@ -90,12 +90,12 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// 登录页面
+// Login page
 router.get('/login', (req, res) => {
   res.render('login');
 });
 
-// 登录处理
+// Login handling
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', {
     successRedirect: '/',
@@ -104,11 +104,11 @@ router.post('/login', (req, res, next) => {
   })(req, res, next);
 });
 
-// 登出
+// Logout
 router.get('/logout', (req, res, next) => {
   req.logout(function(err) {
     if (err) { return next(err); }
-    req.flash('success_msg', '你已登出');
+    req.flash('success_msg', 'You have logged out');
     res.redirect('/users/login');
   });
 });

@@ -1,67 +1,67 @@
 <!-- views/index.ejs -->
 <%- include('partials/header') %>
 
-<!-- 搜索栏 -->
+<!-- Search Bar -->
 <div class="row mb-4">
   <div class="col-md-8 offset-md-2">
     <form action="/search" method="GET">
       <div class="input-group">
-        <input type="text" class="form-control" name="q" placeholder="搜索食谱..." required>
+        <input type="text" class="form-control" name="q" placeholder="Search recipes..." required>
         <div class="input-group-append">
-          <button class="btn btn-primary" type="submit">搜索</button>
+          <button class="btn btn-primary" type="submit">Search</button>
         </div>
       </div>
     </form>
   </div>
 </div>
 
-<!-- 类别导航栏 -->
+<!-- Category Navigation Bar -->
 <div class="mb-4">
   <nav class="nav">
-    <a class="nav-link active" href="#">全部</a>
-    <a class="nav-link" href="#">早餐</a>
-    <a class="nav-link" href="#">午餐</a>
-    <a class="nav-link" href="#">晚餐</a>
-    <a class="nav-link" href="#">甜点</a>
-    <!-- 添加更多类别 -->
+    <a class="nav-link active" href="#">All</a>
+    <a class="nav-link" href="#">Breakfast</a>
+    <a class="nav-link" href="#">Lunch</a>
+    <a class="nav-link" href="#">Dinner</a>
+    <a class="nav-link" href="#">Dessert</a>
+    <!-- Add more categories -->
   </nav>
 </div>
 
 <!-- Daily Recipe -->
 <div class="mb-4">
-  <h3>每日推荐</h3>
+  <h3>Daily Recipe</h3>
   <% if (dailyRecipe) { %>
     <div class="card mb-3" style="max-width: 540px;">
       <div class="row no-gutters">
         <div class="col-md-4">
-          <img src="<%= dailyRecipe.photo %>" class="card-img" alt="每日推荐食谱">
+          <img src="<%= dailyRecipe.photo %>" class="card-img" alt="Daily Recipe">
         </div>
         <div class="col-md-8">
           <div class="card-body">
             <h5 class="card-title"><a href="/recipes/<%= dailyRecipe._id %>"><%= dailyRecipe.description %></a></h5>
-            <p class="card-text">喜欢数: <%= dailyRecipe.likes %></p>
-            <a href="/recipes/<%= dailyRecipe._id %>" class="btn btn-sm btn-primary">查看食谱</a>
+            <p class="card-text">Likes: <%= dailyRecipe.likes %></p>
+            <a href="/recipes/<%= dailyRecipe._id %>" class="btn btn-sm btn-primary">View Recipe</a>
           </div>
         </div>
       </div>
     </div>
-    <button id="refresh-daily" class="btn btn-secondary">刷新</button>
+    <button id="refresh-daily" class="btn btn-secondary">Refresh</button>
   <% } else { %>
-    <p>暂无每日推荐食谱。</p>
+    <p>No daily recipe available.</p>
   <% } %>
 </div>
 
 <!-- Hot Recipes -->
 <div class="mb-4">
-  <h3>热门食谱</h3>
+  <h3>Hot Recipes</h3>
   <div class="row">
     <% hotRecipes.forEach(recipe => { %>
       <div class="col-md-4">
         <div class="card mb-3">
-          <img src="<%= recipe.photo %>" class="card-img-top" alt="热门食谱">
+          <img src="<%= recipe.photo %>" class="card-img-top" alt="Hot Recipe">
           <div class="card-body">
             <h5 class="card-title"><a href="/recipes/<%= recipe._id %>"><%= recipe.description %></a></h5>
-            <p class="card-text">喜欢数: <%= recipe.likes %></p>
+            <p class="card-text">Likes: <%= recipe.likes %></p>
           </div>
         </div>
       </div>
@@ -71,15 +71,15 @@
 
 <!-- Top Cooks -->
 <div class="mb-4">
-  <h3>顶级厨师</h3>
+  <h3>Top Cooks</h3>
   <div class="row">
     <% topCooks.forEach(cook => { %>
       <div class="col-md-4">
         <div class="card mb-3">
-          <img src="<%= cook.profile.photo || '/images/default-avatar.png' %>" class="card-img-top" alt="厨师头像">
+          <img src="<%= cook.profile.photo || '/images/default-avatar.png' %>" class="card-img-top" alt="Chef Avatar">
           <div class="card-body">
             <h5 class="card-title"><%= cook.profile.first_name %> <%= cook.profile.last_name %></h5>
-            <p class="card-text">喜欢数: <!-- 根据需要添加数据 --></p>
+            <p class="card-text">Likes: <!-- Add data as needed --></p>
           </div>
         </div>
       </div>

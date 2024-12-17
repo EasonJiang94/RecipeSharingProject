@@ -1,7 +1,7 @@
 <!-- views/register.ejs -->
 <%- include('partials/header') %>
 
-<h2>注册</h2>
+<h2>Register</h2>
 <form action="/users/register" method="POST">
   <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
     <div class="alert alert-danger">
@@ -14,26 +14,26 @@
   <% } %>
   
   <div class="form-group">
-    <label for="account">账户</label>
+    <label for="account">Account</label>
     <input type="text" class="form-control" id="account" name="account" value="<%= typeof account !== 'undefined' ? account : '' %>" required>
   </div>
   <div class="form-group">
-    <label for="first_name">名字</label>
+    <label for="first_name">First Name</label>
     <input type="text" class="form-control" id="first_name" name="first_name" value="<%= typeof first_name !== 'undefined' ? first_name : '' %>" required>
   </div>
   <div class="form-group">
-    <label for="last_name">姓氏</label>
+    <label for="last_name">Last Name</label>
     <input type="text" class="form-control" id="last_name" name="last_name" value="<%= typeof last_name !== 'undefined' ? last_name : '' %>" required>
   </div>
   <div class="form-group">
-    <label for="password">密码</label>
+    <label for="password">Password</label>
     <input type="password" class="form-control" id="password" name="password" required>
   </div>
   <div class="form-group">
-    <label for="password2">确认密码</label>
+    <label for="password2">Confirm Password</label>
     <input type="password" class="form-control" id="password2" name="password2" required>
   </div>
-  <button type="submit" class="btn btn-primary">注册</button>
+  <button type="submit" class="btn btn-primary">Register</button>
 </form>
 
 <%- include('partials/footer') %>

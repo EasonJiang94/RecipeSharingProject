@@ -1,7 +1,7 @@
 <!-- views/add_recipe.ejs -->
 <%- include('partials/header') %>
 
-<h2>添加新食谱</h2>
+<h2>Add New Recipe</h2>
 <form action="/recipes/add" method="POST" enctype="multipart/form-data">
   <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
     <div class="alert alert-danger">
@@ -14,22 +14,22 @@
   <% } %>
 
   <div class="form-group">
-    <label for="description">食谱描述</label>
+    <label for="description">Recipe Description</label>
     <input type="text" class="form-control" id="description" name="description" value="<%= typeof description !== 'undefined' ? description : '' %>" required>
   </div>
   <div class="form-group">
-    <label for="ingredient">食材（逗号分隔）</label>
+    <label for="ingredient">Ingredients (comma separated)</label>
     <input type="text" class="form-control" id="ingredient" name="ingredient" value="<%= typeof ingredient !== 'undefined' ? ingredient : '' %>" required>
   </div>
   <div class="form-group">
-    <label for="instruction">做法</label>
+    <label for="instruction">Instructions</label>
     <textarea class="form-control" id="instruction" name="instruction" rows="5" required><%= typeof instruction !== 'undefined' ? instruction : '' %></textarea>
   </div>
   <div class="form-group">
-    <label for="photo">食谱图片</label>
+    <label for="photo">Recipe Image</label>
     <input type="file" class="form-control-file" id="photo" name="photo">
   </div>
-  <button type="submit" class="btn btn-primary">添加食谱</button>
+  <button type="submit" class="btn btn-primary">Add Recipe</button>
 </form>
 
 <%- include('partials/footer') %>

@@ -9,10 +9,10 @@ const passport = require('passport');
 const flash = require('connect-flash');
 const bodyParser = require('body-parser');
 
-// 初始化 Express
+// Initialize Express
 const app = express();
 
-// 连接到 MongoDB
+// Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/recipe-app', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -22,27 +22,27 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/recipe-ap
   console.error('MongoDB connection error:', err);
 });
 
-// 设置 EJS 作为模板引擎
+// Set EJS as the template engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// 中间件
+// Middleware
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
-  secret: 'your_secret_key', // 请替换为你的密钥
+  secret: process.env.SESSION_SECRET || 'your_secret_key', // Replace with your secret key
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI || 'mongodb://localhost:27017/recipe-app' }),
 }));
 app.use(flash());
 
-// Passport 配置
+// Passport configuration
 require('./config/passport')(passport);
 app.use(passport.initialize());
 app.use(passport.session());
 
-// 设置全局变量
+// Set global variables
 app.use((req, res, next) => {
   res.locals.user = req.user;
   res.locals.success_msg = req.flash('success_msg');
@@ -51,14 +51,13 @@ app.use((req, res, next) => {
   next();
 });
 
-// 路由
+// Routes
 app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));
 app.use('/recipes', require('./routes/recipes'));
 app.use('/admin', require('./routes/admin'));
-app.use('/profile', require("./routes/profile"));
 
-// 启动服务器
+// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);

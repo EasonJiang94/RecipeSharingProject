@@ -12,6 +12,29 @@
   </nav>
 </div>
 
+  
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const cards = document.querySelectorAll(".card");
+
+    cards.forEach((card) => {
+      card.addEventListener("mouseenter", () => {
+        card.style.transform = "scale(1.03)";
+        card.style.transition = "transform 0.3s ease, box-shadow 0.3s ease";
+        card.style.boxShadow = "0 8px 16px rgba(0,0,0,0.3)";
+      });
+
+      card.addEventListener("mouseleave", () => {
+        card.style.transform = "scale(1)";
+        card.style.boxShadow = "none";
+      });
+    });
+  });
+</script>
+  
+  
+  
+  
 <div class="container mt-4">
   <div class="card mb-4">
     <% if (recipe.photo && /^https?:\/\//.test(recipe.photo)) { %>

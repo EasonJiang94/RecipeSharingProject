@@ -11,7 +11,7 @@ module.exports = {
     if (req.isAuthenticated() && req.user.role === 1) {
       return next();
     }
-    req.flash('error_msg', 'No permission to access');
+    req.flash('error_msg', 'You do not have permission to access that page.');
     res.redirect('/');
   }
 };

@@ -15,7 +15,10 @@ router.get('/', async (req, res) => {
     const profile = await Profile.findOne({ uid: req.user._id });
     
     // Find user's recipes
-    const recipes = await Recipe.find({ uid: req.user._id });
+    const recipeUsers = await RecipeUser.find({ uid: req.user._id });
+    const recipes = await Promise.all(recipeUsers.map(async (recipeUser) => {
+      return await Recipe.findById(recipeUser.rid);
+    }));
     
     // Get user's comments with populated recipe information
 const comments = await Comment.find({ uid: req.user._id })

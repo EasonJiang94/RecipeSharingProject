@@ -154,5 +154,40 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// Unlike recipe handling
+router.post('/unlike/:id', ensureAuthenticated, async (req, res) => {
+  try {
+    const recipeId = req.params.id;
+    const userId = req.user._id;
+
+    // Check if the like exists
+    const existingLike = await Like.findOne({ rid: recipeId, uid: userId });
+    if (!existingLike) {
+      return res.status(400).json({ success: false, message: 'You have not liked this recipe.' });
+    }
+
+    // Remove the Like document
+    await Like.findByIdAndDelete(existingLike._id);
+
+    // Decrement the likes count in the Recipe model
+    const updatedRecipe = await Recipe.findByIdAndUpdate(
+      recipeId,
+      { $inc: { likes: -1 } },
+      { new: true }
+    );
+
+    // Remove the recipe from the user's likedRecipes array
+    await User.findByIdAndUpdate(
+      userId,
+      { $pull: { likedRecipes: recipeId } },
+      { new: true }
+    );
+
+    res.json({ success: true, likes: updatedRecipe.likes });
+  } catch (err) {
+    console.error('Error while unliking recipe:', err);
+    res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
 
 module.exports = router;

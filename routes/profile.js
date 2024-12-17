@@ -1,17 +1,12 @@
+// routes/profile.js
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const storage = multer.memoryStorage();
-const upload = multer({ 
-    storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
-});
 
 // Profile page route
 router.get('/', async (req, res) => {
     try {
         // 查找用户个人资料
-        const profile = await req.app.locals.db.collection('profiles').findOne(
+        const profile = await req.app.locals.db.collection('profile').findOne(
             { uid: req.session.userId }
         );
         
@@ -48,7 +43,7 @@ router.post('/update', async (req, res) => {
     try {
         const { first_name, last_name, introduction } = req.body;
         
-        await req.app.locals.db.collection('profiles').updateOne(
+        await req.app.locals.db.collection('profile').updateOne(
             { uid: req.session.userId },
             {
                 $set: {
@@ -68,15 +63,11 @@ router.post('/update', async (req, res) => {
 });
 
 // Update profile photo
-router.post('/update-photo', upload.single('photo'), async (req, res) => {
+router.post('/update-photo', async (req, res) => {
     try {
-        if (!req.file) {
-            throw new Error('No file uploaded');
-        }
+        const { photo } = req.body;  // Assuming photo is sent as base64 string
 
-        const photo = req.file.buffer.toString('base64');
-
-        await req.app.locals.db.collection('profiles').updateOne(
+        await req.app.locals.db.collection('profile').updateOne(
             { uid: req.session.userId },
             {
                 $set: {
